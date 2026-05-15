@@ -1,0 +1,943 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Command Center - GramaSeva</title>
+    <link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;600;700;800&family=Fraunces:ital,wght@0,700;0,900;1,400&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --bg-color: #f1f5f9;
+            --sidebar-bg: #0f172a;
+            --sidebar-text: #94a3b8;
+            --sidebar-active: #ffffff;
+            --primary: #c8502a;
+            --primary-dk: #8c3318;
+            --leaf: #3d7a3a;
+            --leaf-lt: #5aad56;
+            --card-bg: #ffffff;
+            --text-dark: #1e293b;
+            --text-light: #64748b;
+            --border: #e2e8f0;
+            --clay-light: #e8724d;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Sora', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-dark);
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 280px;
+            background: linear-gradient(180deg, var(--sidebar-bg) 0%, #1e293b 100%);
+            color: white;
+            display: flex;
+            flex-direction: column;
+            position: fixed;
+            height: 100vh;
+            left: 0;
+            top: 0;
+            box-shadow: 4px 0 24px rgba(0,0,0,0.1);
+            z-index: 100;
+        }
+
+        .sidebar-header {
+            padding: 30px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+        }
+
+        .logo-mark {
+            width: 40px;
+            height: 40px;
+            background: var(--primary);
+            border-radius: 12px;
+            display: grid;
+            place-items: center;
+            font-size: 20px;
+        }
+
+        .sidebar-header h1 {
+            font-family: 'Fraunces', serif;
+            font-size: 1.4rem;
+            color: white;
+            line-height: 1.2;
+        }
+
+        .sidebar-header span {
+            font-size: 0.65rem;
+            color: var(--primary);
+            text-transform: uppercase;
+            letter-spacing: 0.15em;
+            font-weight: 700;
+        }
+
+        .nav-menu {
+            padding: 20px 15px;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 14px 20px;
+            color: var(--sidebar-text);
+            text-decoration: none;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            border: 1px solid transparent;
+        }
+
+        .nav-item:hover {
+            color: var(--sidebar-active);
+            background: rgba(255,255,255,0.05);
+        }
+
+        .nav-item.active {
+            color: var(--sidebar-active);
+            background: rgba(200, 80, 42, 0.15);
+            border-color: rgba(200, 80, 42, 0.3);
+        }
+
+        .nav-item i {
+            font-size: 1.2rem;
+            width: 24px;
+            text-align: center;
+            font-style: normal;
+        }
+
+        /* Main Content */
+        .main-content {
+            margin-left: 280px;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        .topbar {
+            height: 80px;
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 40px;
+            position: sticky;
+            top: 0;
+            z-index: 50;
+        }
+
+        .topbar-title h2 {
+            font-family: 'Fraunces', serif;
+            color: var(--text-dark);
+            font-size: 1.6rem;
+        }
+
+        .topbar-actions {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .admin-profile {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 8px 16px;
+            background: white;
+            border-radius: 50px;
+            border: 1px solid var(--border);
+            box-shadow: 0 2px 10px rgba(0,0,0,0.02);
+        }
+
+        .admin-avatar {
+            width: 32px;
+            height: 32px;
+            background: var(--primary);
+            color: white;
+            border-radius: 50%;
+            display: grid;
+            place-items: center;
+            font-weight: 700;
+            font-size: 0.8rem;
+        }
+
+        .content-area {
+            padding: 40px;
+            flex: 1;
+            overflow-y: auto;
+        }
+
+        /* Section Visibility */
+        .view-section {
+            display: none;
+            animation: fadeIn 0.4s ease;
+        }
+
+        .view-section.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* KPI Cards */
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 24px;
+            margin-bottom: 40px;
+        }
+
+        .kpi-card {
+            background: var(--card-bg);
+            padding: 24px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.03);
+            border: 1px solid var(--border);
+            position: relative;
+            overflow: hidden;
+            transition: transform 0.3s ease;
+        }
+
+        .kpi-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .kpi-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: var(--primary);
+        }
+
+        .kpi-card.green::before { background: var(--leaf); }
+        .kpi-card.blue::before { background: #3b82f6; }
+        .kpi-card.purple::before { background: #8b5cf6; }
+
+        .kpi-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .kpi-title {
+            color: var(--text-light);
+            font-size: 0.85rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .kpi-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 12px;
+            display: grid;
+            place-items: center;
+            font-size: 1.2rem;
+            background: rgba(200, 80, 42, 0.1);
+            color: var(--primary);
+        }
+        
+        .kpi-card.green .kpi-icon { background: rgba(61, 122, 58, 0.1); color: var(--leaf); }
+        .kpi-card.blue .kpi-icon { background: rgba(59, 130, 246, 0.1); color: #3b82f6; }
+        .kpi-card.purple .kpi-icon { background: rgba(139, 92, 246, 0.1); color: #8b5cf6; }
+
+        .kpi-value {
+            font-family: 'Fraunces', serif;
+            font-size: 2.4rem;
+            color: var(--text-dark);
+            font-weight: 900;
+        }
+
+        /* Charts & Layout */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 24px;
+        }
+
+        .panel {
+            background: var(--card-bg);
+            border-radius: 20px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.03);
+            border: 1px solid var(--border);
+        }
+
+        .panel-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 15px;
+        }
+
+        .panel-title {
+            font-family: 'Fraunces', serif;
+            font-size: 1.2rem;
+            color: var(--text-dark);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        /* Data Tables */
+        .table-container {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+        }
+
+        th {
+            text-align: left;
+            padding: 15px;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: var(--text-light);
+            font-weight: 700;
+            border-bottom: 2px solid var(--border);
+            white-space: nowrap;
+        }
+
+        td {
+            padding: 16px 15px;
+            font-size: 0.9rem;
+            color: var(--text-dark);
+            border-bottom: 1px solid var(--border);
+            vertical-align: middle;
+        }
+
+        tbody tr {
+            transition: background 0.2s;
+        }
+
+        tbody tr:hover {
+            background: #f8fafc;
+        }
+
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 4px 12px;
+            border-radius: 50px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .badge-success { background: #dcfce7; color: #166534; }
+        .badge-warning { background: #fef9c3; color: #854d0e; }
+        .badge-danger { background: #fee2e2; color: #991b1b; }
+        .badge-info { background: #e0e7ff; color: #3730a3; }
+
+        .btn-action {
+            padding: 6px 12px;
+            border-radius: 8px;
+            border: none;
+            font-weight: 600;
+            font-size: 0.75rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            background: var(--bg-color);
+            color: var(--text-dark);
+        }
+
+        .btn-action.verify { background: #dcfce7; color: #166534; }
+        .btn-action.delete { background: #fee2e2; color: #991b1b; }
+
+        .btn-action:hover {
+            filter: brightness(0.95);
+        }
+
+        /* Filter Controls */
+        .filter-bar {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 25px;
+            background: var(--card-bg);
+            padding: 15px;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            align-items: center;
+        }
+
+        .search-input {
+            flex: 1;
+            padding: 10px 15px;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            font-size: 0.9rem;
+            outline: none;
+        }
+        .search-input:focus { border-color: var(--primary); }
+
+        .filter-select {
+            padding: 10px 15px;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            font-size: 0.9rem;
+            background: white;
+            outline: none;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .btn-primary:hover { background: var(--primary-dk); }
+
+    </style>
+</head>
+<body>
+
+    <!-- Sidebar -->
+    <aside class="sidebar">
+        <div class="sidebar-header">
+            <div class="logo-mark">🌿</div>
+            <div>
+                <h1>GramaSeva</h1>
+                <span>Command Center</span>
+            </div>
+        </div>
+        <nav class="nav-menu">
+            <a href="#" class="nav-item active" data-target="view-dashboard">
+                <i>📊</i> Dashboard Overview
+            </a>
+            <a href="#" class="nav-item" data-target="view-workers">
+                <i>👷‍♂️</i> Registered Workers
+            </a>
+            <a href="#" class="nav-item" data-target="view-bookings">
+                <i>📅</i> Service Bookings
+            </a>
+            <a href="#" class="nav-item" data-target="view-customers">
+                <i>👥</i> Customer Analytics
+            </a>
+        </nav>
+        <div style="padding: 20px; border-top: 1px solid rgba(255,255,255,0.05); text-align: center;">
+            <a href="index.html" style="color: var(--sidebar-text); text-decoration: none; font-size: 0.8rem; font-weight: 600;">← Back to Main Site</a>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <header class="topbar">
+            <div class="topbar-title">
+                <h2 id="topbar-title-text">Dashboard Overview</h2>
+            </div>
+            <div class="topbar-actions">
+                <div class="admin-profile">
+                    <div class="admin-avatar">AD</div>
+                    <div>
+                        <div style="font-weight: 700; font-size: 0.85rem;">System Admin</div>
+                        <div style="font-size: 0.7rem; color: var(--text-light);">admin@gramaseva.in</div>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <div class="content-area">
+            
+            <!-- Dashboard View -->
+            <div id="view-dashboard" class="view-section active">
+                
+                <div class="kpi-grid">
+                    <div class="kpi-card">
+                        <div class="kpi-header">
+                            <span class="kpi-title">Total Workers</span>
+                            <div class="kpi-icon">👷‍♂️</div>
+                        </div>
+                        <div class="kpi-value" id="kpi-workers">0</div>
+                        <div style="font-size: 0.8rem; color: var(--text-light); margin-top: 5px;">Including group members</div>
+                    </div>
+                    
+                    <div class="kpi-card green">
+                        <div class="kpi-header">
+                            <span class="kpi-title">Total Bookings</span>
+                            <div class="kpi-icon">📅</div>
+                        </div>
+                        <div class="kpi-value" id="kpi-bookings">0</div>
+                        <div style="font-size: 0.8rem; color: var(--text-light); margin-top: 5px;">All time service requests</div>
+                    </div>
+
+                    <div class="kpi-card blue">
+                        <div class="kpi-header">
+                            <span class="kpi-title">Unique Customers</span>
+                            <div class="kpi-icon">👥</div>
+                        </div>
+                        <div class="kpi-value" id="kpi-customers">0</div>
+                        <div style="font-size: 0.8rem; color: var(--text-light); margin-top: 5px;">Registered users</div>
+                    </div>
+
+                    <div class="kpi-card purple">
+                        <div class="kpi-header">
+                            <span class="kpi-title">Platform Revenue</span>
+                            <div class="kpi-icon">💰</div>
+                        </div>
+                        <div class="kpi-value" id="kpi-revenue">₹0</div>
+                        <div style="font-size: 0.8rem; color: var(--text-light); margin-top: 5px;">From completed bookings</div>
+                    </div>
+                </div>
+
+                <div class="dashboard-grid">
+                    <div class="panel">
+                        <div class="panel-header">
+                            <h3 class="panel-title">📈 Registrations Over Last 7 Days</h3>
+                        </div>
+                        <canvas id="registrationsChart" height="100"></canvas>
+                    </div>
+
+                    <div class="panel">
+                        <div class="panel-header">
+                            <h3 class="panel-title">🔧 Top Trades</h3>
+                        </div>
+                        <div class="table-container">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Trade</th>
+                                        <th>Workers</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="top-trades-body">
+                                    <!-- Populated by JS -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="panel" style="margin-top: 24px;">
+                    <div class="panel-header">
+                        <h3 class="panel-title">⏱️ Recent Bookings</h3>
+                        <button class="btn-action" onclick="switchView('view-bookings')">View All</button>
+                    </div>
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Booking ID</th>
+                                    <th>Customer</th>
+                                    <th>Worker</th>
+                                    <th>Date</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody id="recent-bookings-body">
+                                <!-- Populated by JS -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Workers View -->
+            <div id="view-workers" class="view-section">
+                <div class="filter-bar">
+                    <input type="text" id="worker-search" class="search-input" placeholder="Search by name, phone, or village...">
+                    <select id="worker-type-filter" class="filter-select">
+                        <option value="">All Types</option>
+                        <option value="individual">Individual</option>
+                        <option value="group">Group</option>
+                    </select>
+                    <button class="btn-primary" onclick="loadWorkers()">Search</button>
+                </div>
+
+                <div class="panel">
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Worker ID</th>
+                                    <th>Name & Details</th>
+                                    <th>Contact</th>
+                                    <th>Location</th>
+                                    <th>Type</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="workers-table-body">
+                                <!-- Populated by JS -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Bookings View -->
+            <div id="view-bookings" class="view-section">
+                <div class="filter-bar">
+                    <input type="text" id="booking-search" class="search-input" placeholder="Search by ID, customer, or worker...">
+                    <select id="booking-status-filter" class="filter-select">
+                        <option value="">All Statuses</option>
+                        <option value="pending">Pending</option>
+                        <option value="completed">Completed</option>
+                        <option value="cancelled">Cancelled</option>
+                    </select>
+                    <button class="btn-primary" onclick="loadBookings()">Search</button>
+                </div>
+
+                <div class="panel">
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Booking ID</th>
+                                    <th>Customer Info</th>
+                                    <th>Worker Assigned</th>
+                                    <th>Service Date</th>
+                                    <th>Amount</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="bookings-table-body">
+                                <!-- Populated by JS -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Customers View -->
+            <div id="view-customers" class="view-section">
+                <div class="panel">
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Customer Name</th>
+                                    <th>Phone Number</th>
+                                    <th>Total Bookings</th>
+                                    <th>Completed</th>
+                                    <th>Total Spent</th>
+                                    <th>Last Booking Date</th>
+                                </tr>
+                            </thead>
+                            <tbody id="customers-table-body">
+                                <!-- Populated by JS -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <script>
+        const API_BASE = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+            ? 'http://localhost:5000/api'
+            : '/api';
+        let chartInstance = null;
+
+        // Navigation Logic
+        document.querySelectorAll('.nav-item').forEach(item => {
+            item.addEventListener('click', (e) => {
+                e.preventDefault();
+                
+                // Update Nav
+                document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+                item.classList.add('active');
+                
+                // Update Title
+                document.getElementById('topbar-title-text').innerText = item.innerText.replace(/[\uD800-\uDBFF][\uDC00-\uDFFF]/g, '').trim();
+
+                // Show Section
+                const targetId = item.getAttribute('data-target');
+                document.querySelectorAll('.view-section').forEach(sec => sec.classList.remove('active'));
+                document.getElementById(targetId).classList.add('active');
+
+                // Load Data dynamically based on view
+                if(targetId === 'view-dashboard') loadOverview();
+                if(targetId === 'view-workers') loadWorkers();
+                if(targetId === 'view-bookings') loadBookings();
+                if(targetId === 'view-customers') loadCustomers();
+            });
+        });
+
+        // Switch View Helper
+        function switchView(targetId) {
+            const link = document.querySelector(`.nav-item[data-target="${targetId}"]`);
+            if(link) link.click();
+        }
+
+        // Format Currency
+        const formatMoney = (amount) => {
+            return new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 }).format(amount || 0);
+        };
+
+        // Format Date
+        const formatDate = (dateStr) => {
+            if(!dateStr) return '-';
+            const d = new Date(dateStr);
+            return d.toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
+        };
+
+        // ─── DATA LOADING FUNCTIONS ───
+
+        async function loadOverview() {
+            try {
+                // Fetch overview data and stats (for real revenue calculation)
+                const [res, statsRes] = await Promise.all([
+                    fetch(`${API_BASE}/admin/overview`),
+                    fetch(`${API_BASE}/stats`)
+                ]);
+                
+                const data = await res.json();
+                const stats = await statsRes.json();
+
+                // Update KPIs
+                document.getElementById('kpi-workers').innerText = data.workers.total_members || data.workers.total || 0;
+                document.getElementById('kpi-bookings').innerText = data.bookings.total || 0;
+                document.getElementById('kpi-customers').innerText = data.customers.total || 0;
+                
+                // Show actual platform revenue (1% welfare fee)
+                document.getElementById('kpi-revenue').innerText = '₹' + (stats.totalWelfare || 0).toFixed(2); 
+
+                // Render Top Trades
+                const tradesHtml = data.trades.map(t => `
+                    <tr>
+                        <td style="font-weight: 600;">${t.trade}</td>
+                        <td><span class="badge badge-info">${t.count} workers</span></td>
+                    </tr>
+                `).join('');
+                document.getElementById('top-trades-body').innerHTML = tradesHtml;
+
+                // Render Recent Bookings
+                const recentHtml = data.recentBookings.map(b => `
+                    <tr>
+                        <td style="font-weight: 700; color: var(--primary);">${b.booking_id}</td>
+                        <td>
+                            <div style="font-weight: 600;">${b.customer_name}</div>
+                            <div style="font-size: 0.75rem; color: var(--text-light);">${b.customer_phone}</div>
+                        </td>
+                        <td>
+                            <div style="font-weight: 600;">${b.worker_name}</div>
+                            <div style="font-size: 0.75rem; color: var(--text-light);">${b.worker_trade}</div>
+                        </td>
+                        <td>${formatDate(b.created_at)}</td>
+                        <td><span class="badge badge-${b.status === 'completed' ? 'success' : b.status === 'pending' ? 'warning' : 'danger'}">${b.status}</span></td>
+                    </tr>
+                `).join('');
+                document.getElementById('recent-bookings-body').innerHTML = recentHtml;
+
+                // Render Chart
+                const ctx = document.getElementById('registrationsChart').getContext('2d');
+                if(chartInstance) chartInstance.destroy();
+                
+                const dates = data.dailyRegistrations.map(d => formatDate(d.date));
+                const counts = data.dailyRegistrations.map(d => d.count);
+
+                chartInstance = new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: dates.length ? dates : ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+                        datasets: [{
+                            label: 'New Workers',
+                            data: counts.length ? counts : [0, 2, 4, 3, 7, 5, 8],
+                            borderColor: '#c8502a',
+                            backgroundColor: 'rgba(200, 80, 42, 0.1)',
+                            borderWidth: 3,
+                            tension: 0.4,
+                            fill: true
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        plugins: { legend: { display: false } },
+                        scales: {
+                            y: { beginAtZero: true, grid: { borderDash: [4, 4] } },
+                            x: { grid: { display: false } }
+                        }
+                    }
+                });
+
+            } catch (err) {
+                console.error("Error loading overview:", err);
+            }
+        }
+
+        async function loadWorkers() {
+            const search = document.getElementById('worker-search').value;
+            const type = document.getElementById('worker-type-filter').value;
+            
+            try {
+                let url = `${API_BASE}/admin/workers?1=1`;
+                if(search) url += `&search=${encodeURIComponent(search)}`;
+                if(type) url += `&type=${encodeURIComponent(type)}`;
+
+                const res = await fetch(url);
+                const workers = await res.json();
+
+                const html = workers.map(w => `
+                    <tr>
+                        <td style="font-weight: 700; color: var(--primary);">${w.worker_id}</td>
+                        <td>
+                            <div style="font-weight: 600;">${w.full_name}</div>
+                            <div style="font-size: 0.75rem; color: var(--text-light);">${w.trade}</div>
+                        </td>
+                        <td>${w.phone}</td>
+                        <td>${w.village}</td>
+                        <td><span class="badge badge-${w.type==='group' ? 'info' : 'warning'}">${w.type}</span></td>
+                        <td>
+                            ${w.is_verified ? '<span class="badge badge-success">Verified</span>' : '<span class="badge badge-danger">Unverified</span>'}
+                        </td>
+                        <td>
+                            <button class="btn-action verify" onclick="toggleVerify('${w.worker_id}')">${w.is_verified ? 'Unverify' : 'Verify'}</button>
+                            <button class="btn-action delete" onclick="deleteWorker('${w.worker_id}')">Delete</button>
+                        </td>
+                    </tr>
+                `).join('');
+                
+                document.getElementById('workers-table-body').innerHTML = html || '<tr><td colspan="7" style="text-align:center; padding: 30px;">No workers found.</td></tr>';
+            } catch(e) { console.error(e); }
+        }
+
+        async function loadBookings() {
+            const search = document.getElementById('booking-search').value;
+            const status = document.getElementById('booking-status-filter').value;
+            
+            try {
+                let url = `${API_BASE}/admin/bookings?1=1`;
+                if(search) url += `&search=${encodeURIComponent(search)}`;
+                if(status) url += `&status=${encodeURIComponent(status)}`;
+
+                const res = await fetch(url);
+                const bookings = await res.json();
+
+                const html = bookings.map(b => `
+                    <tr>
+                        <td style="font-weight: 700; color: var(--primary);">${b.booking_id}</td>
+                        <td>
+                            <div style="font-weight: 600;">${b.customer_name}</div>
+                            <div style="font-size: 0.75rem; color: var(--text-light);">${b.customer_phone}</div>
+                        </td>
+                        <td>
+                            <div style="font-weight: 600;">${b.worker_name || 'N/A'}</div>
+                            <div style="font-size: 0.75rem; color: var(--text-light);">${b.worker_trade || ''}</div>
+                        </td>
+                        <td>${formatDate(b.service_date)}</td>
+                        <td style="font-weight: 600;">${b.amount}</td>
+                        <td>
+                            <select class="filter-select" style="padding: 4px 8px; font-size: 0.8rem; border-radius: 4px;" onchange="updateBookingStatus('${b.booking_id}', this.value)">
+                                <option value="pending" ${b.status==='pending'?'selected':''}>Pending</option>
+                                <option value="completed" ${b.status==='completed'?'selected':''}>Completed</option>
+                                <option value="cancelled" ${b.status==='cancelled'?'selected':''}>Cancelled</option>
+                            </select>
+                        </td>
+                        <td>
+                            <button class="btn-action" style="background:#e2e8f0;" onclick="alert('View details for ${b.booking_id}')">View</button>
+                        </td>
+                    </tr>
+                `).join('');
+                
+                document.getElementById('bookings-table-body').innerHTML = html || '<tr><td colspan="7" style="text-align:center; padding: 30px;">No bookings found.</td></tr>';
+            } catch(e) { console.error(e); }
+        }
+
+        async function loadCustomers() {
+            try {
+                const res = await fetch(`${API_BASE}/admin/customers`);
+                const customers = await res.json();
+
+                const html = customers.map(c => `
+                    <tr>
+                        <td style="font-weight: 600;">${c.customer_name}</td>
+                        <td>${c.customer_phone}</td>
+                        <td><span class="badge badge-info">${c.total_bookings}</span></td>
+                        <td><span class="badge badge-success">${c.completed}</span></td>
+                        <td style="font-weight: 700; color: var(--leaf);">${formatMoney(c.total_spent)}</td>
+                        <td>${formatDate(c.last_booking)}</td>
+                    </tr>
+                `).join('');
+                
+                document.getElementById('customers-table-body').innerHTML = html || '<tr><td colspan="6" style="text-align:center; padding: 30px;">No customers found.</td></tr>';
+            } catch(e) { console.error(e); }
+        }
+
+        // ─── ADMIN ACTIONS ───
+
+        async function toggleVerify(workerId) {
+            if(!confirm(`Toggle verification status for ${workerId}?`)) return;
+            try {
+                await fetch(`${API_BASE}/admin/workers/${workerId}/toggle-verify`, { method: 'POST' });
+                loadWorkers();
+            } catch(e) { alert('Error updating verification.'); }
+        }
+
+        async function deleteWorker(workerId) {
+            if(!confirm(`Are you sure you want to permanently delete worker ${workerId}?`)) return;
+            try {
+                await fetch(`${API_BASE}/admin/workers/${workerId}`, { method: 'DELETE' });
+                loadWorkers();
+                loadOverview(); // update stats
+            } catch(e) { alert('Error deleting worker.'); }
+        }
+
+        async function updateBookingStatus(bookingId, newStatus) {
+            if(!confirm(`Change booking ${bookingId} status to ${newStatus}?`)) {
+                loadBookings(); // reset dropdown
+                return;
+            }
+            try {
+                await fetch(`${API_BASE}/admin/bookings/${bookingId}/status`, { 
+                    method: 'PATCH',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ status: newStatus })
+                });
+                loadBookings();
+                loadOverview();
+            } catch(e) { alert('Error updating booking status.'); }
+        }
+
+        // Initial Load
+        window.addEventListener('DOMContentLoaded', () => {
+            loadOverview();
+        });
+
+    </script>
+</body>
+</html>
