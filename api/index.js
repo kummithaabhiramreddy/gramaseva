@@ -26,8 +26,8 @@ pool.on('error', (err) => {
 
 
 const razorpay = new Razorpay({
-    key_id: process.env.RAZORPAY_KEY_ID,
-    key_secret: process.env.RAZORPAY_KEY_SECRET
+    key_id: process.env.RAZORPAY_KEY_ID || 'dummy_key_id_to_prevent_crash',
+    key_secret: process.env.RAZORPAY_KEY_SECRET || 'dummy_key_secret'
 });
 
 // Database Initialization (Optional: You might want to run this once separately or check if table exists)
