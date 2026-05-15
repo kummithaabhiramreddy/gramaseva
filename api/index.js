@@ -12,13 +12,18 @@ app.use(cors());
 app.use(express.json());
 
 // Postgres Pool Setup
-// Important: Neon requires SSL for production connections
 const pool = new Pool({
     connectionString: process.env.DATABASE_URL,
     ssl: process.env.DATABASE_URL && !process.env.DATABASE_URL.includes('localhost') 
          ? { rejectUnauthorized: false } 
          : false
 });
+
+// Error listener to prevent process crash
+pool.on('error', (err) => {
+    console.error('Unexpected error on idle client', err);
+});
+
 
 const razorpay = new Razorpay({
     key_id: process.env.RAZORPAY_KEY_ID,
