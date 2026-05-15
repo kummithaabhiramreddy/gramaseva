@@ -1,0 +1,1789 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GramaSeva – Worker Registration</title>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;600;700;800&family=Fraunces:ital,wght@0,700;0,900;1,400&display=swap"
+    rel="stylesheet">
+  <style>
+    :root {
+      --clay: #c8502a;
+      --clay-lt: #e8724d;
+      --clay-dk: #8c3318;
+      --earth: #2b1f14;
+      --soil: #4a3422;
+      --sand: #f5ede0;
+      --wheat: #e8d5b7;
+      --leaf: #3d7a3a;
+      --leaf-lt: #5aad56;
+      --mist: #faf6f0;
+      --ink: #1a1008;
+      --gold: #d4a017;
+      --border: #e2cdb0;
+      --input-bg: #fff;
+      --r: 12px;
+    }
+
+    *,
+    *::before,
+    *::after {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      font-family: 'Sora', sans-serif;
+      background: var(--mist);
+      color: var(--ink);
+      min-height: 100vh;
+    }
+
+    /* noise */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.035'/%3E%3C/svg%3E");
+      pointer-events: none;
+      z-index: 999;
+    }
+
+    /* ── HEADER ── */
+    header {
+      background: var(--earth);
+      border-bottom: 3px solid var(--leaf-lt);
+      position: sticky;
+      top: 0;
+      z-index: 200;
+    }
+
+    .header-inner {
+      max-width: 1100px;
+      margin: auto;
+      padding: 0 2rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 64px;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      text-decoration: none;
+    }
+
+    .logo-mark {
+      width: 38px;
+      height: 38px;
+      background: var(--leaf);
+      border-radius: 10px;
+      display: grid;
+      place-items: center;
+      font-size: 18px;
+      flex-shrink: 0;
+    }
+
+    .logo-text h1 {
+      font-family: 'Fraunces', serif;
+      font-size: 1.3rem;
+      color: var(--sand);
+      font-weight: 900;
+      letter-spacing: -0.02em;
+    }
+
+    .logo-text span {
+      font-size: 0.6rem;
+      color: var(--clay-lt);
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      font-weight: 600;
+    }
+
+    .back-link {
+      color: rgba(245, 237, 224, 0.65);
+      text-decoration: none;
+      font-size: 0.82rem;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 7px 14px;
+      border-radius: 8px;
+      border: 1px solid rgba(245, 237, 224, 0.15);
+      transition: all 0.2s;
+    }
+
+    .back-link:hover {
+      background: rgba(200, 80, 42, 0.25);
+      color: var(--sand);
+    }
+
+    /* ── ABOUT BANNER ── */
+    .about-banner {
+      background: linear-gradient(135deg, var(--earth) 0%, var(--soil) 100%);
+      padding: 50px 2rem 44px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .about-banner::after {
+      content: '';
+      position: absolute;
+      bottom: -1px;
+      left: 0;
+      right: 0;
+      height: 50px;
+      background: var(--mist);
+      clip-path: polygon(0 100%, 100% 0, 100% 100%);
+    }
+
+    .about-deco {
+      position: absolute;
+      top: -40px;
+      right: -40px;
+      width: 260px;
+      height: 260px;
+      border-radius: 50%;
+      background: radial-gradient(circle, var(--clay) 0%, transparent 70%);
+      opacity: 0.12;
+      pointer-events: none;
+    }
+
+    .about-inner {
+      max-width: 1100px;
+      margin: auto;
+      position: relative;
+    }
+
+    .about-tag {
+      display: inline-block;
+      background: rgba(200, 80, 42, 0.25);
+      border: 1px solid rgba(200, 80, 42, 0.45);
+      color: var(--clay-lt);
+      padding: 4px 14px;
+      border-radius: 50px;
+      font-size: 0.7rem;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      margin-bottom: 14px;
+    }
+
+    .about-banner h2 {
+      font-family: 'Fraunces', serif;
+      font-size: clamp(1.7rem, 3.5vw, 2.6rem);
+      color: var(--sand);
+      font-weight: 900;
+      letter-spacing: -0.03em;
+      line-height: 1.1;
+      margin-bottom: 14px;
+    }
+
+    .about-banner h2 em {
+      font-style: italic;
+      color: var(--clay-lt);
+    }
+
+    .about-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 16px;
+      margin-top: 28px;
+    }
+
+    .about-card {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(245, 237, 224, 0.1);
+      border-radius: 14px;
+      padding: 18px 20px;
+      transition: all 0.25s;
+    }
+
+    .about-card:hover {
+      background: rgba(200, 80, 42, 0.14);
+      border-color: rgba(200, 80, 42, 0.3);
+    }
+
+    .about-card .icon {
+      font-size: 1.6rem;
+      margin-bottom: 8px;
+    }
+
+    .about-card h4 {
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: var(--sand);
+      margin-bottom: 4px;
+    }
+
+    .about-card p {
+      font-size: 0.76rem;
+      color: rgba(245, 237, 224, 0.5);
+      line-height: 1.6;
+      font-weight: 300;
+    }
+
+    /* ── MAIN LAYOUT ── */
+    .page-wrap {
+      max-width: 860px;
+      margin: 0 auto;
+      padding: 50px 2rem 80px;
+    }
+
+    /* type selector */
+    .type-selector {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin-bottom: 40px;
+    }
+
+    .type-btn {
+      border: 2px solid var(--border);
+      background: white;
+      border-radius: 16px;
+      padding: 24px 20px;
+      cursor: pointer;
+      transition: all 0.25s;
+      text-align: left;
+      display: flex;
+      align-items: flex-start;
+      gap: 14px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .type-btn::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, var(--clay) 0%, var(--clay-dk) 100%);
+      opacity: 0;
+      transition: opacity 0.25s;
+    }
+
+    .type-btn.active {
+      border-color: var(--clay);
+      box-shadow: 0 8px 28px rgba(200, 80, 42, 0.22);
+    }
+
+    .type-btn.active::before {
+      opacity: 1;
+    }
+
+    .type-btn .t-icon {
+      font-size: 2rem;
+      flex-shrink: 0;
+      position: relative;
+      z-index: 1;
+      width: 52px;
+      height: 52px;
+      background: var(--sand);
+      border-radius: 12px;
+      display: grid;
+      place-items: center;
+      transition: background 0.25s;
+    }
+
+    .type-btn.active .t-icon {
+      background: rgba(255, 255, 255, 0.18);
+    }
+
+    .type-btn .t-body {
+      position: relative;
+      z-index: 1;
+    }
+
+    .type-btn h3 {
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--earth);
+      margin-bottom: 4px;
+      transition: color 0.25s;
+    }
+
+    .type-btn p {
+      font-size: 0.78rem;
+      color: var(--soil);
+      line-height: 1.55;
+      font-weight: 400;
+      transition: color 0.25s;
+    }
+
+    .type-btn.active h3,
+    .type-btn.active p {
+      color: white;
+    }
+
+    .type-btn .check-badge {
+      position: absolute;
+      top: 14px;
+      right: 14px;
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.2);
+      border: 2px solid rgba(255, 255, 255, 0.4);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.7rem;
+      color: white;
+      z-index: 1;
+    }
+
+    .type-btn.active .check-badge {
+      display: flex;
+      background: rgba(255, 255, 255, 0.3);
+    }
+
+    /* ── FORM PANELS ── */
+    .form-panel {
+      display: none;
+      animation: slideUp 0.35s ease;
+    }
+
+    .form-panel.active {
+      display: block;
+    }
+
+    @keyframes slideUp {
+      from {
+        opacity: 0;
+        transform: translateY(20px)
+      }
+
+      to {
+        opacity: 1;
+        transform: none
+      }
+    }
+
+    /* ID badge */
+    .id-badge-row {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      background: linear-gradient(135deg, var(--earth) 0%, var(--soil) 100%);
+      border-radius: 14px;
+      padding: 16px 22px;
+      margin-bottom: 28px;
+    }
+
+    .id-badge-row .badge-icon {
+      font-size: 1.5rem;
+    }
+
+    .id-badge-label {
+      font-size: 0.72rem;
+      color: rgba(245, 237, 224, 0.5);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      font-weight: 700;
+    }
+
+    .id-badge-val {
+      font-family: 'Fraunces', serif;
+      font-size: 1.5rem;
+      color: var(--clay-lt);
+      font-weight: 900;
+      letter-spacing: -0.02em;
+    }
+
+    .id-note {
+      font-size: 0.72rem;
+      color: rgba(245, 237, 224, 0.4);
+      margin-top: 2px;
+      font-weight: 300;
+    }
+
+    /* section header */
+    .form-section-head {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 20px;
+      margin-top: 32px;
+    }
+
+    .form-section-head:first-of-type {
+      margin-top: 0;
+    }
+
+    .section-icon {
+      width: 34px;
+      height: 34px;
+      background: var(--clay);
+      border-radius: 9px;
+      display: grid;
+      place-items: center;
+      font-size: 0.9rem;
+      flex-shrink: 0;
+    }
+
+    .form-section-head h4 {
+      font-weight: 700;
+      font-size: 0.95rem;
+      color: var(--earth);
+    }
+
+    .form-section-head span {
+      font-size: 0.75rem;
+      color: var(--soil);
+      font-weight: 400;
+    }
+
+    .form-divider {
+      border: none;
+      border-top: 1.5px dashed var(--border);
+      margin: 28px 0;
+    }
+
+    /* fields */
+    .fields-grid {
+      display: grid;
+      gap: 16px;
+    }
+
+    .fields-grid.cols2 {
+      grid-template-columns: 1fr 1fr;
+    }
+
+    .fields-grid.cols3 {
+      grid-template-columns: 1fr 1fr 1fr;
+    }
+
+    .field {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .field label {
+      font-size: 0.78rem;
+      font-weight: 700;
+      color: var(--soil);
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .field label .req {
+      color: var(--clay);
+    }
+
+    .field label .locked-badge {
+      font-size: 0.65rem;
+      background: var(--earth);
+      color: var(--clay-lt);
+      padding: 1px 7px;
+      border-radius: 20px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    .field input,
+    .field select,
+    .field textarea {
+      width: 100%;
+      padding: 11px 14px;
+      border: 1.5px solid var(--border);
+      border-radius: 10px;
+      font-family: 'Sora', sans-serif;
+      font-size: 0.88rem;
+      color: var(--ink);
+      background: var(--input-bg);
+      outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+    .field input:focus,
+    .field select:focus,
+    .field textarea:focus {
+      border-color: var(--clay);
+      box-shadow: 0 0 0 3px rgba(200, 80, 42, 0.12);
+    }
+
+    .field input[readonly],
+    .field input[disabled] {
+      background: #f0ebe4;
+      color: var(--soil);
+      cursor: not-allowed;
+      border-style: dashed;
+    }
+
+    .field textarea {
+      resize: vertical;
+      min-height: 80px;
+    }
+
+    .field select {
+      cursor: pointer;
+    }
+
+    /* work type pills */
+    .work-type-display {
+      padding: 10px 14px;
+      border: 1.5px solid var(--border);
+      border-radius: 10px;
+      background: #f0ebe4;
+      font-size: 0.88rem;
+      color: var(--soil);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-style: italic;
+    }
+
+    .work-type-display .pill {
+      background: var(--clay);
+      color: white;
+      padding: 2px 10px;
+      border-radius: 20px;
+      font-size: 0.72rem;
+      font-weight: 700;
+      font-style: normal;
+    }
+
+    /* group members */
+    .members-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .member-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .member-num {
+      width: 30px;
+      height: 30px;
+      background: var(--sand);
+      border: 1.5px solid var(--border);
+      border-radius: 8px;
+      display: grid;
+      place-items: center;
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: var(--soil);
+      flex-shrink: 0;
+    }
+
+    .member-row input {
+      flex: 1;
+      padding: 10px 13px;
+      border: 1.5px solid var(--border);
+      border-radius: 10px;
+      font-family: 'Sora', sans-serif;
+      font-size: 0.87rem;
+      color: var(--ink);
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    .member-row input:focus {
+      border-color: var(--clay);
+      box-shadow: 0 0 0 3px rgba(200, 80, 42, 0.1);
+    }
+
+    .remove-btn {
+      width: 30px;
+      height: 30px;
+      border: none;
+      background: none;
+      cursor: pointer;
+      color: #ccc;
+      font-size: 1.1rem;
+      border-radius: 8px;
+      transition: all 0.2s;
+      display: grid;
+      place-items: center;
+    }
+
+    .remove-btn:hover {
+      background: #fee;
+      color: var(--clay);
+    }
+
+    .add-member-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      background: var(--sand);
+      border: 1.5px dashed var(--border);
+      color: var(--soil);
+      padding: 9px 18px;
+      border-radius: 10px;
+      font-family: 'Sora', sans-serif;
+      font-size: 0.82rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.2s;
+      margin-top: 4px;
+    }
+
+    .add-member-btn:hover {
+      background: var(--wheat);
+      border-color: var(--clay);
+      color: var(--clay);
+    }
+
+    /* submit */
+    .submit-row {
+      margin-top: 36px;
+    }
+
+    .btn-submit {
+      width: 100%;
+      background: linear-gradient(135deg, var(--clay) 0%, var(--clay-dk) 100%);
+      color: white;
+      border: none;
+      padding: 16px 28px;
+      border-radius: 12px;
+      font-family: 'Sora', sans-serif;
+      font-weight: 800;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: all 0.25s;
+      letter-spacing: 0.01em;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      box-shadow: 0 4px 18px rgba(200, 80, 42, 0.3);
+    }
+
+    .btn-submit:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 28px rgba(200, 80, 42, 0.45);
+      background: linear-gradient(135deg, var(--clay-lt) 0%, var(--clay) 100%);
+    }
+
+    .btn-submit:active {
+      transform: none;
+    }
+
+    /* privacy note */
+    .privacy-note {
+      text-align: center;
+      margin-top: 14px;
+      font-size: 0.76rem;
+      color: var(--soil);
+      font-weight: 400;
+      line-height: 1.6;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+    }
+
+    /* success modal */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(27, 18, 8, 0.7);
+      backdrop-filter: blur(4px);
+      z-index: 1000;
+      display: none;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .modal-overlay.show {
+      display: flex;
+    }
+
+    .modal-box {
+      background: white;
+      border-radius: 22px;
+      padding: 44px 40px;
+      max-width: 420px;
+      width: 90%;
+      text-align: center;
+      box-shadow: 0 24px 64px rgba(0, 0, 0, 0.3);
+      animation: popIn 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    @keyframes popIn {
+      from {
+        opacity: 0;
+        transform: scale(0.8)
+      }
+
+      to {
+        opacity: 1;
+        transform: scale(1)
+      }
+    }
+
+    .modal-icon {
+      font-size: 3.5rem;
+      margin-bottom: 14px;
+    }
+
+    .modal-box h3 {
+      font-family: 'Fraunces', serif;
+      font-size: 1.7rem;
+      color: var(--earth);
+      font-weight: 900;
+      margin-bottom: 8px;
+    }
+
+    .modal-box p {
+      font-size: 0.88rem;
+      color: var(--soil);
+      line-height: 1.7;
+      font-weight: 300;
+      margin-bottom: 6px;
+    }
+
+    .modal-id {
+      font-family: 'Fraunces', serif;
+      font-size: 1.3rem;
+      color: var(--clay);
+      font-weight: 900;
+      letter-spacing: -0.02em;
+      background: var(--sand);
+      border-radius: 10px;
+      padding: 10px 20px;
+      display: inline-block;
+      margin: 12px 0;
+    }
+
+    .modal-close {
+      margin-top: 20px;
+      width: 100%;
+      background: var(--earth);
+      color: var(--sand);
+      border: none;
+      padding: 13px;
+      border-radius: 10px;
+      font-family: 'Sora', sans-serif;
+      font-weight: 700;
+      font-size: 0.9rem;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .modal-close:hover {
+      background: var(--clay);
+    }
+
+    /* page title */
+    .page-title {
+      margin-bottom: 32px;
+    }
+
+    .page-title .ptag {
+      display: inline-block;
+      background: var(--wheat);
+      color: var(--soil);
+      padding: 4px 14px;
+      border-radius: 50px;
+      font-size: 0.7rem;
+      font-weight: 700;
+    }
+
+    .btn-location {
+      background: var(--sand);
+      border: 1px solid var(--border);
+      color: var(--clay-dk);
+      padding: 4px 10px;
+      border-radius: 6px;
+      font-size: 0.7rem;
+      font-weight: 700;
+      cursor: pointer;
+      font-family: 'Sora', sans-serif;
+      transition: all 0.2s;
+    }
+
+    .btn-location:hover {
+      background: var(--wheat);
+      color: var(--clay);
+    }
+
+    .page-title h2 {
+      font-family: 'Fraunces', serif;
+      font-size: clamp(1.6rem, 3vw, 2.2rem);
+      color: var(--earth);
+      font-weight: 900;
+      letter-spacing: -0.03em;
+      line-height: 1.1;
+      margin-bottom: 6px;
+    }
+
+    .page-title p {
+      font-size: 0.88rem;
+      color: var(--soil);
+      font-weight: 300;
+      line-height: 1.7;
+    }
+
+    /* form card */
+    .form-card {
+      background: white;
+      border: 1.5px solid var(--border);
+      border-radius: 20px;
+      padding: 36px 32px;
+      box-shadow: 0 4px 24px rgba(74, 52, 34, 0.07);
+    }
+
+    @media(max-width:680px) {
+      .about-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .type-selector {
+        grid-template-columns: 1fr;
+      }
+
+      .fields-grid.cols2,
+      .fields-grid.cols3 {
+        grid-template-columns: 1fr;
+      }
+
+      .form-card {
+        padding: 24px 18px;
+      }
+
+      .page-wrap {
+        padding: 36px 1.2rem 60px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- HEADER -->
+  <header>
+    <div class="header-inner">
+      <a class="logo">
+        <div class="logo-mark">🌿</div>
+        <div class="logo-text">
+          <h1>GramaSeva</h1>
+          <span>Village Worker Connect</span>
+        </div>
+      </a>
+      <a href="index.html" class="back-link">← Back to Home</a>
+    </div>
+  </header>
+
+  <!-- ABOUT BANNER -->
+  <div class="about-banner">
+    <div class="about-deco"></div>
+    <div class="about-inner">
+      <div class="about-tag">🌿 About GramaSeva</div>
+      <h2>Empowering <em>Village Workers</em><br>Across Andhra Pradesh</h2>
+      <div class="about-grid">
+        <div class="about-card">
+          <div class="icon">🤝</div>
+          <h4><span id="stat-workers">1,200+</span> Workers</h4>
+          <p>Skilled professionals and groups registered from across the region.</p>
+        </div>
+        <div class="about-card">
+          <div class="icon">📋</div>
+          <h4><span id="stat-jobs">4,500+</span> Bookings</h4>
+          <p>Successful jobs completed through our automated village marketplace.</p>
+        </div>
+        <div class="about-card">
+          <div class="icon">🏘️</div>
+          <h4><span id="stat-villages">85+</span> Villages</h4>
+          <p>Connecting skilled hands to local households in villages across the mandal.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MAIN -->
+  <div class="page-wrap">
+    <div class="page-title">
+      <div class="ptag">✍️ Worker Registration</div>
+      <h2>Register with GramaSeva</h2>
+      <p>Choose your registration type below. Your ID is assigned automatically — please save it after registering.</p>
+    </div>
+
+    <!-- TYPE SELECTOR -->
+    <div class="type-selector">
+      <button class="type-btn active" onclick="switchType('individual')">
+        <div class="t-icon">👤</div>
+        <div class="t-body">
+          <h3>Individual Registration</h3>
+          <p>Register yourself as a single skilled worker. Your profile will be listed for your village only.</p>
+        </div>
+        <div class="check-badge">✓</div>
+      </button>
+      <button class="type-btn" onclick="switchType('group')">
+        <div class="t-icon">👥</div>
+        <div class="t-body">
+          <h3>Group Registration</h3>
+          <p>Register as a team. One leader manages the group — customers can contact the entire team at once.</p>
+        </div>
+        <div class="check-badge">✓</div>
+      </button>
+    </div>
+
+    <!-- ── INDIVIDUAL FORM ── -->
+    <div class="form-panel active" id="panel-individual">
+      <div class="form-card">
+        <!-- Auto ID -->
+        <div class="id-badge-row">
+          <div class="badge-icon">🪪</div>
+          <div>
+            <div class="id-badge-label">Your Worker ID</div>
+            <div class="id-badge-val" id="ind-id-display">WRK-2025-1241</div>
+            <div class="id-note">Auto-assigned · Read-only · Save this after registration</div>
+          </div>
+        </div>
+
+        <form id="individualForm" onsubmit="submitIndividual(event)">
+          <!-- hidden id field -->
+          <input type="hidden" id="ind-id-field" value="WRK-2025-1241">
+
+          <!-- Personal Info -->
+          <div class="form-section-head">
+            <div class="section-icon">👤</div>
+            <div>
+              <h4>Personal Information</h4>
+              <span>Basic details about you</span>
+            </div>
+          </div>
+          <div class="fields-grid cols2">
+            <div class="field">
+              <label>Full Name <span class="req">*</span></label>
+              <input type="text" placeholder="e.g. Ravi Kumar" required>
+            </div>
+            <div class="field">
+              <label>Phone Number <span class="req">*</span></label>
+              <input type="tel" placeholder="e.g. 94xxxxxxxx" maxlength="10" required autocomplete="tel">
+            </div>
+          </div>
+
+          <hr class="form-divider">
+
+          <!-- Work Type -->
+          <div class="form-section-head">
+            <div class="section-icon">🔧</div>
+            <div>
+              <h4>Work Type</h4>
+              <span>Select your trade — shown on your profile as a tag</span>
+            </div>
+          </div>
+          <div class="fields-grid cols2">
+            <div class="field">
+              <label>Trade / Skill <span class="req">*</span></label>
+              <input type="text" id="ind-trade" list="tradeList" placeholder="e.g. Electrician / మీ వృత్తి" required
+                oninput="updateWorkTypeDisplay('ind')">
+            </div>
+            <div class="field">
+              <label>Work Type (Profile Tag) <span class="locked-badge">Auto-filled</span></label>
+              <div class="work-type-display" id="ind-work-type-display">
+                <span>Will appear after selecting trade →</span>
+              </div>
+            </div>
+          </div>
+
+          <hr class="form-divider">
+
+          <!-- Location -->
+          <div class="form-section-head">
+            <div class="section-icon">📍</div>
+            <div>
+              <h4>Location Details</h4>
+              <span>Customers in your village will find you</span>
+            </div>
+          </div>
+          <div class="fields-grid cols2">
+            <div class="field">
+              <label>Village Name <span class="req">*</span></label>
+              <input type="text" placeholder="e.g. Pedavegi" list="villageList" required>
+            </div>
+            <div class="field">
+              <label>Mandal / Location <span class="req">*</span></label>
+              <input type="text" placeholder="e.g. Pedavegi Mandal" required>
+            </div>
+          </div>
+          <div class="fields-grid" style="margin-top:14px">
+            <div class="field">
+              <div style="display:flex; justify-content:space-between; align-items:center;">
+                <label style="margin-bottom:0;">Landmark</label>
+                <button type="button" onclick="getLiveLocation(this)" class="btn-location">📍 Get Live Location</button>
+              </div>
+              <input type="text" placeholder="e.g. Near Shiva Temple, Main Road">
+            </div>
+          </div>
+
+          <hr class="form-divider">
+
+          <!-- Related Info -->
+          <div class="form-section-head">
+            <div class="section-icon">📝</div>
+            <div>
+              <h4>Related Information</h4>
+              <span>Years of experience, specialisation, any tools you own</span>
+            </div>
+          </div>
+          <div class="fields-grid cols2">
+            <div class="field">
+              <label>Years of Experience</label>
+              <input type="number" min="0" max="60" placeholder="e.g. 8">
+            </div>
+            <div class="field">
+              <label>Availability</label>
+              <select>
+                <option value="available">✅ Available Now</option>
+                <option value="busy">🔴 Currently Busy</option>
+              </select>
+            </div>
+          </div>
+          <div class="field">
+            <label>Additional Details</label>
+            <textarea
+              placeholder="Describe your expertise, tools, previous work, or any other relevant information customers should know…"></textarea>
+          </div>
+      </div>
+
+      <hr class="form-divider">
+
+      <!-- Identity & Compliance -->
+      <div class="form-section-head">
+        <div class="section-icon">🆔</div>
+        <div>
+          <h4>Identity & Compliance</h4>
+          <span>Secure Aadhaar-linked verification for trust</span>
+        </div>
+      </div>
+      <div class="fields-grid cols2">
+        <div class="field">
+          <label>Aadhaar Number (12 Digits) <span class="req">*</span></label>
+          <input type="text" id="ind-aadhaar" placeholder="XXXX XXXX XXXX" maxlength="12" required pattern="[0-9]{12}">
+        </div>
+        <div class="field">
+          <label>e-Shram UAN (Optional)</label>
+          <input type="text" id="ind-eshram" placeholder="Universal Account Number">
+        </div>
+      </div>
+      <div class="field"
+        style="margin-top:15px; background:rgba(245,237,224,0.3); padding:15px; border-radius:12px; border:1px dashed var(--clay-lt);">
+        <div style="display:flex; gap:10px; align-items:flex-start;">
+          <input type="checkbox" id="ind-verify-check" required
+            style="width:20px; height:20px; margin-top:2px; cursor:pointer;">
+          <label for="ind-verify-check" style="font-size:0.85rem; color:var(--soil); cursor:pointer;">
+            I hereby consent to Aadhaar-linked KYC verification and agree to the <strong>2020 Social Security
+              Code</strong>.
+            I understand 1-2% of my earnings may contribute to the <strong>Worker Welfare Fund</strong>.
+          </label>
+        </div>
+      </div>
+
+      <!-- Pricing and Hours -->
+      <div class="form-section-head">
+        <div class="section-icon">💰</div>
+        <div>
+          <h4>Pricing & Working Hours</h4>
+          <span>Add up to 3 price options and your working hours</span>
+        </div>
+      </div>
+      <div class="fields-grid cols2">
+        <div class="field">
+          <label>Working Hours</label>
+          <input type="text" id="ind-working-hours" placeholder="e.g. 09:00 AM to 06:00 PM">
+        </div>
+        <div class="field">
+          <label>Price Option 1 (Required) <span class="req">*</span></label>
+          <input type="text" id="ind-price-1" placeholder="e.g. Hourly - ₹100" required>
+        </div>
+      </div>
+      <div class="fields-grid cols2" style="margin-top:14px">
+        <div class="field">
+          <label>Price Option 2 (Optional)</label>
+          <input type="text" id="ind-price-2" placeholder="e.g. Half Day - ₹400">
+        </div>
+        <div class="field">
+          <label>Price Option 3 (Optional)</label>
+          <input type="text" id="ind-price-3" placeholder="e.g. Full Day - ₹800">
+        </div>
+      </div>
+
+      <hr class="form-divider">
+
+      <!-- Bank Details -->
+      <div class="form-section-head">
+        <div class="section-icon">🏦</div>
+        <div>
+          <h4>Bank Account Details</h4>
+          <span>Provide your details for direct payments</span>
+        </div>
+      </div>
+      <div class="fields-grid cols2">
+        <div class="field">
+          <label>Account Type</label>
+          <select id="ind-acc-type">
+            <option value="Savings">Savings Account / పొదుపు ఖాతా</option>
+            <option value="Current">Current Account / ప్రస్తుత ఖాతా</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Bank Name <span class="req">*</span></label>
+          <input type="text" id="ind-bank-name" list="bankList" placeholder="e.g. Canara Bank, SBI / బ్యాంక్ పేరు" required>
+        </div>
+      </div>
+      <div class="field" style="margin-top:14px">
+        <label>Account Holder Name <span class="req">*</span></label>
+        <input type="text" id="ind-acc-name" placeholder="Name as per Bank Record" required>
+      </div>
+      <div class="fields-grid cols2" style="margin-top:14px">
+        <div class="field">
+          <label>IFSC Code <span class="req">*</span></label>
+          <input type="text" id="ind-ifsc" placeholder="e.g. SBIN000XXXX" required>
+        </div>
+        <div class="field">
+          <label>Bank Account Number <span class="req">*</span></label>
+          <input type="text" id="ind-acc-no" placeholder="Enter full account number" required>
+        </div>
+      </div>
+
+      <div class="submit-row">
+        <button type="submit" class="btn-submit">✅ Complete Individual Registration →</button>
+        <div class="privacy-note">🔒 Your details are visible only within your village community. GramaSeva does not
+          share data externally.</div>
+      </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ── GROUP FORM ── -->
+  <div class="form-panel" id="panel-group">
+    <div class="form-card">
+      <!-- Auto Group No -->
+      <div class="id-badge-row">
+        <div class="badge-icon">🏷️</div>
+        <div>
+          <div class="id-badge-label">Group Registration Number</div>
+          <div class="id-badge-val" id="grp-id-display">GRP-2025-0341</div>
+          <div class="id-note">Auto-assigned · Read-only · Share this number with your group members</div>
+        </div>
+      </div>
+
+      <form id="groupForm" onsubmit="submitGroup(event)">
+        <input type="hidden" id="grp-id-field" value="GRP-2025-0341">
+
+        <!-- GROUP LEADER -->
+        <div class="form-section-head">
+          <div class="section-icon">👑</div>
+          <div>
+            <h4>Group Leader Details</h4>
+            <span>The leader manages group communication</span>
+          </div>
+        </div>
+        <div class="fields-grid cols2">
+          <div class="field">
+            <label>Leader's Full Name <span class="req">*</span></label>
+            <input type="text" placeholder="e.g. Mohan Rao" required>
+          </div>
+          <div class="field">
+            <label>Leader's Phone Number <span class="req">*</span></label>
+            <input type="tel" placeholder="e.g. 98xxxxxxxx" maxlength="10" required autocomplete="tel">
+          </div>
+        </div>
+
+        <div class="fields-grid cols2" style="margin-top:14px">
+          <div class="field">
+            <label>Group Trade / Skill <span class="req">*</span></label>
+            <input type="text" id="grp-trade" list="tradeList" placeholder="e.g. Construction / గ్రూపు వృత్తి" required
+              oninput="updateWorkTypeDisplay('grp')">
+          </div>
+          <div class="field">
+            <label>Work Type (Profile Tag) <span class="locked-badge">Auto-filled</span></label>
+            <div class="work-type-display" id="grp-work-type-display">
+              <span>Will appear after selecting trade →</span>
+            </div>
+          </div>
+        </div>
+
+        <hr class="form-divider">
+
+        <!-- Location -->
+        <div class="form-section-head">
+          <div class="section-icon">📍</div>
+          <div>
+            <h4>Group Location Details</h4>
+            <span>All group members must be from the same village</span>
+          </div>
+        </div>
+        <div class="fields-grid cols2">
+          <div class="field">
+            <label>Village Name <span class="req">*</span></label>
+            <input type="text" placeholder="e.g. Gannavaram" list="villageList" required>
+          </div>
+          <div class="field">
+            <label>Mandal / Location <span class="req">*</span></label>
+            <input type="text" placeholder="e.g. Gannavaram Mandal" required>
+          </div>
+        </div>
+        <div class="fields-grid" style="margin-top:14px">
+          <div class="field">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+              <label style="margin-bottom:0;">Landmark</label>
+              <button type="button" onclick="getLiveLocation(this)" class="btn-location">📍 Get Live Location</button>
+            </div>
+            <input type="text" placeholder="e.g. Near Bus Stand, Gannavaram">
+          </div>
+        </div>
+
+        <hr class="form-divider">
+
+        <!-- Group Members -->
+        <div class="form-section-head">
+          <div class="section-icon">👥</div>
+          <div>
+            <h4>Group Members</h4>
+            <span>Add all member names — minimum 2, maximum 20</span>
+          </div>
+        </div>
+        <div class="members-list" id="membersList">
+          <div class="member-row">
+            <div class="member-num">1</div>
+            <input type="text" placeholder="Member 1 full name" required>
+            <button type="button" class="remove-btn" onclick="removeMember(this)" title="Remove">×</button>
+          </div>
+          <div class="member-row">
+            <div class="member-num">2</div>
+            <input type="text" placeholder="Member 2 full name" required>
+            <button type="button" class="remove-btn" onclick="removeMember(this)" title="Remove">×</button>
+          </div>
+        </div>
+        <button type="button" class="add-member-btn" onclick="addMember()">+ Add Another Member</button>
+
+        <hr class="form-divider">
+
+        <!-- Related Info -->
+        <div class="form-section-head">
+          <div class="section-icon">📝</div>
+          <div>
+            <h4>Related Information</h4>
+            <span>Group capacity, experience, and other details</span>
+          </div>
+        </div>
+        <div class="fields-grid cols2">
+          <div class="field">
+            <label>Group Experience (years)</label>
+            <input type="number" min="0" max="60" placeholder="e.g. 5">
+          </div>
+          <div class="field">
+            <label>Group Availability</label>
+            <select>
+              <option value="available">✅ Available Now</option>
+              <option value="busy">🔴 Currently Busy</option>
+            </select>
+          </div>
+        </div>
+        <div class="fields-grid" style="margin-top:14px">
+          <div class="field">
+            <label>Group Description</label>
+            <textarea placeholder="Describe your group's expertise, tools, and services…"></textarea>
+          </div>
+        </div>
+
+        <hr class="form-divider">
+
+        <!-- Identity & Compliance -->
+        <div class="form-section-head">
+          <div class="section-icon">🆔</div>
+          <div>
+            <h4>Identity & Compliance (Leader)</h4>
+            <span>Leader's identity verification for the group</span>
+          </div>
+        </div>
+        <div class="fields-grid cols2">
+          <div class="field">
+            <label>Leader's Aadhaar (12 Digits) <span class="req">*</span></label>
+            <input type="text" id="grp-aadhaar" placeholder="XXXX XXXX XXXX" maxlength="12" required
+              pattern="[0-9]{12}">
+          </div>
+          <div class="field">
+            <label>e-Shram UAN (Optional)</label>
+            <input type="text" id="grp-eshram" placeholder="Universal Account Number">
+          </div>
+        </div>
+        <div class="field"
+          style="margin-top:15px; background:rgba(245,237,224,0.3); padding:15px; border-radius:12px; border:1px dashed var(--clay-lt);">
+          <div style="display:flex; gap:10px; align-items:flex-start;">
+            <input type="checkbox" id="grp-verify-check" required
+              style="width:20px; height:20px; margin-top:2px; cursor:pointer;">
+            <label for="grp-verify-check" style="font-size:0.85rem; color:var(--soil); cursor:pointer;">
+              As the group leader, I consent to Aadhaar verification and agree to the <strong>Worker Welfare
+                Fund</strong> contributions as per current labor reforms.
+            </label>
+          </div>
+        </div>
+
+        <!-- Pricing and Hours -->
+        <div class="form-section-head">
+          <div class="section-icon">💰</div>
+          <div>
+            <h4>Group Pricing & Working Hours</h4>
+            <span>Add up to 3 price options and the group's working hours</span>
+          </div>
+        </div>
+        <div class="fields-grid cols2">
+          <div class="field">
+            <label>Working Hours</label>
+            <input type="text" id="grp-working-hours" placeholder="e.g. 09:00 AM to 06:00 PM">
+          </div>
+          <div class="field">
+            <label>Price Option 1 (Required) <span class="req">*</span></label>
+            <input type="text" id="grp-price-1" placeholder="e.g. Hourly - ₹300" required>
+          </div>
+        </div>
+        <div class="fields-grid cols2" style="margin-top:14px">
+          <div class="field">
+            <label>Price Option 2 (Optional)</label>
+            <input type="text" id="grp-price-2" placeholder="e.g. Half Day - ₹1000">
+          </div>
+          <div class="field">
+            <label>Price Option 3 (Optional)</label>
+            <input type="text" id="grp-price-3" placeholder="e.g. Full Day - ₹2000">
+          </div>
+        </div>
+
+        <hr class="form-divider">
+
+        <!-- Bank Details -->
+        <div class="form-section-head">
+          <div class="section-icon">🏦</div>
+          <div>
+            <h4>Bank Account Details (Leader or Group)</h4>
+            <span>Provide details for direct group payments</span>
+          </div>
+        </div>
+        <div class="fields-grid cols2">
+          <div class="field">
+            <label>Account Type</label>
+            <select id="grp-acc-type">
+              <option value="Savings">Savings Account / పొదుపు ఖాతా</option>
+              <option value="Current">Current Account / ప్రస్తుత ఖాతా</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>Bank Name <span class="req">*</span></label>
+            <input type="text" id="grp-bank-name" list="bankList" placeholder="e.g. SBI, Canara Bank / బ్యాంక్ పేరు" required>
+          </div>
+        </div>
+        <div class="field" style="margin-top:14px">
+          <label>Account Holder Name <span class="req">*</span></label>
+          <input type="text" id="grp-acc-name" placeholder="Name as per Bank Record" required>
+        </div>
+        <div class="fields-grid cols2" style="margin-top:14px">
+          <div class="field">
+            <label>IFSC Code <span class="req">*</span></label>
+            <input type="text" id="grp-ifsc" placeholder="e.g. SBIN000XXXX" required>
+          </div>
+          <div class="field">
+            <label>Bank Account Number <span class="req">*</span></label>
+            <input type="text" id="grp-acc-no" placeholder="Enter full account number" required>
+          </div>
+        </div>
+
+        <div class="submit-row">
+          <button type="submit" class="btn-submit">✅ Complete Group Registration →</button>
+          <div class="privacy-note">🔒 Group details are visible only within your village community. GramaSeva does
+            not share data externally.</div>
+        </div>
+      </form>
+    </div>
+  </div>
+  </div>
+
+  <datalist id="villageList">
+    <option value="Thimmareddy palem">
+    <option value="lingasamudram">
+    <option value="singarapalem">
+    <option value="gangapalem">
+    <option value="Pedavegi">
+    <option value="Nandigama">
+    <option value="Gannavaram">
+    <option value="Tiruvuru">
+  </datalist>
+
+  <!-- SUCCESS MODAL -->
+  <div class="modal-overlay" id="successModal">
+    <div class="modal-box">
+      <div class="modal-icon">🎉</div>
+      <h3>Registration Successful!</h3>
+      <p>Welcome to GramaSeva. Your registration ID is:</p>
+      <div class="modal-id" id="modal-id-val">WRK-2025-1241</div>
+      <p style="font-size:0.8rem;color:#aaa">Please save this ID. You'll need it to manage your profile.</p>
+      <button class="modal-close" onclick="closeModal()">🏠 Go to Homepage</button>
+    </div>
+  </div>
+
+  <script>
+    const API_BASE = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+      ? 'http://127.0.0.1:5000'
+      : '';
+    
+    /* ── ID counters (fetch from server) ── */
+    
+    let indCounter = 1241;
+    let grpCounter = 341;
+
+    async function syncIDs() {
+      try {
+        const res = await fetch(`${API_BASE}/api/next-id`);
+        const data = await res.json();
+        indCounter = data.nextInd;
+        grpCounter = data.nextGrp;
+        updateIDDisplays();
+      } catch (err) {
+        console.error("Error syncing IDs:", err);
+      }
+    }
+
+    function genIndID() { return 'WRK-2025-' + String(indCounter).padStart(4, '0'); }
+    function genGrpID() { return 'GRP-2025-' + String(grpCounter).padStart(4, '0'); }
+
+    function updateIDDisplays() {
+      const iid = genIndID();
+      const gid = genGrpID();
+      document.getElementById('ind-id-display').textContent = iid;
+      document.getElementById('ind-id-field').value = iid;
+      document.getElementById('grp-id-display').textContent = gid;
+      document.getElementById('grp-id-field').value = gid;
+    }
+
+    /* ── Switch type ── */
+    function switchType(type) {
+      document.querySelectorAll('.type-btn').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.form-panel').forEach(p => p.classList.remove('active'));
+      const btns = document.querySelectorAll('.type-btn');
+      if (type === 'individual') {
+        btns[0].classList.add('active');
+        document.getElementById('panel-individual').classList.add('active');
+      }
+      else {
+        btns[1].classList.add('active');
+        document.getElementById('panel-group').classList.add('active');
+      }
+    }
+
+    /* Handle Hash on load and change */
+    function handleHash() {
+      const hash = window.location.hash.replace('#', '');
+      if (hash === 'individual' || hash === 'group') {
+        switchType(hash);
+        // scroll to top of selector
+        window.scrollTo({ top: document.querySelector('.type-selector').offsetTop - 100, behavior: 'smooth' });
+      }
+    }
+
+    window.addEventListener('load', () => {
+      handleHash();
+      syncIDs();
+      loadPlatformStats();
+    });
+
+    async function loadPlatformStats() {
+      try {
+        const res = await fetch(`${API_BASE}/api/stats`);
+        const data = await res.json();
+        if (res.ok) {
+          const w = (data.registeredWorkers || 0).toLocaleString() + '+';
+          const v = (data.villagesCovered || 0).toLocaleString() + '+';
+          const j = (data.totalBookings || 0).toLocaleString() + '+';
+
+          if (document.getElementById('stat-workers')) document.getElementById('stat-workers').textContent = w;
+          if (document.getElementById('stat-villages')) document.getElementById('stat-villages').textContent = v;
+          if (document.getElementById('stat-jobs')) document.getElementById('stat-jobs').textContent = j;
+
+          // Update the trust banners inside the forms
+          document.querySelectorAll('.form-stat-jobs').forEach(el => el.textContent = j);
+        }
+      } catch (err) { console.error('Stats load failed:', err); }
+    }
+
+    window.addEventListener('hashchange', handleHash);
+
+    /* ── Work type display ── */
+    const tradeEmojis = {
+      'Agriculture': '🌾', 'Plumber': '🔧', 'Builder / Mason': '🏗️', 'Builder': '🏗️',
+      'Electrician': '⚡', 'Carpenter': '🪵', 'Painter': '🎨',
+      'Mechanic': '🧰', 'Animal Husbandry': '🐄', 'Housekeeping / Maid': '🧹', 'Housekeeping': '🧹',
+      'Cooking / Catering': '🍳', 'Irrigation / Borewell': '🌊', 'Irrigation': '🌊',
+      'Gardening / Landscaping': '🪴', 'Gardening': '🪴',
+      'Tailor / Seamstress': '✂️', 'Welder / Blacksmith': '🔥', 'Driver': '🚜',
+      'Barber / Beautician': '💈', 'Washerman / Laundry': '🧺', 'Security Guard': '🛡️',
+      'Priest / Purohit': '🕉️', 'Helper / Daily Labour': '💪', 'Other': '🔨'
+    };
+
+    function updateWorkTypeDisplay(prefix) {
+      const sel = document.getElementById(prefix + '-trade');
+      const display = document.getElementById(prefix + '-work-type-display');
+      const val = sel.value;
+      if (val) {
+        display.innerHTML = `<span class="pill">${tradeEmojis[val] || '🔨'} ${val}</span> <span style="font-size:0.75rem;color:var(--soil)">This tag will appear on your profile card</span>`;
+      } else {
+        display.innerHTML = '<span>Will appear after selecting trade →</span>';
+      }
+    }
+
+    /* ── Add / remove members ── */
+    function addMember() {
+      const list = document.getElementById('membersList');
+      const count = list.children.length + 1;
+      if (count > 20) { alert('Maximum 20 members allowed.'); return; }
+      const row = document.createElement('div');
+      row.className = 'member-row';
+      row.innerHTML = `
+      <div class="member-num">${count}</div>
+      <input type="text" placeholder="Member ${count} full name">
+      <button type="button" class="remove-btn" onclick="removeMember(this)" title="Remove">×</button>
+    `;
+      list.appendChild(row);
+      renumberMembers();
+      row.querySelector('input').focus();
+    }
+
+    function removeMember(btn) {
+      const list = document.getElementById('membersList');
+      if (list.children.length <= 2) { alert('Minimum 2 members required.'); return; }
+      btn.closest('.member-row').remove();
+      renumberMembers();
+    }
+
+    function renumberMembers() {
+      document.querySelectorAll('#membersList .member-row').forEach((row, i) => {
+        row.querySelector('.member-num').textContent = i + 1;
+        row.querySelector('input').placeholder = `Member ${i + 1} full name`;
+      });
+    }
+
+    /* ── Submit ── */
+    async function submitIndividual(e) {
+      e.preventDefault();
+      const id = document.getElementById('ind-id-field').value;
+      const formData = {
+        worker_id: id,
+        full_name: e.target.querySelector('input[placeholder="e.g. Ravi Kumar"]').value,
+        phone: e.target.querySelector('input[type="tel"]').value,
+        trade: document.getElementById('ind-trade').value,
+        village: e.target.querySelector('input[list="villageList"]').value,
+        mandal: e.target.querySelector('input[placeholder="e.g. Pedavegi Mandal"]').value,
+        landmark: e.target.querySelector('input[placeholder="e.g. Near Shiva Temple, Main Road"]').value,
+        experience: e.target.querySelector('input[type="number"]').value,
+        availability: e.target.querySelector('select:not(#ind-trade)').value,
+        details: e.target.querySelector('textarea').value,
+        type: 'individual',
+        working_hours: document.getElementById('ind-working-hours').value,
+        price_1: document.getElementById('ind-price-1').value,
+        price_2: document.getElementById('ind-price-2').value,
+        price_3: document.getElementById('ind-price-3').value,
+        aadhaar_no: document.getElementById('ind-aadhaar').value,
+        eshram_uan: document.getElementById('ind-eshram').value,
+        account_type: document.getElementById('ind-acc-type').value,
+        account_no: document.getElementById('ind-acc-no').value,
+        ifsc_code: document.getElementById('ind-ifsc').value,
+        bank_name: document.getElementById('ind-bank-name').value,
+        account_name: document.getElementById('ind-acc-name').value
+      };
+
+      try {
+        const response = await fetch(`${API_BASE}/api/register`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(formData)
+        });
+        const data = await response.json();
+        if (response.ok) {
+          document.getElementById('modal-id-val').textContent = data.worker_id;
+          indCounter++;
+          document.getElementById('successModal').classList.add('show');
+        } else {
+          alert('Registration failed: ' + (data.error || 'Unknown error'));
+        }
+      } catch (err) {
+        console.error('Connection Error:', err);
+        alert('Error connecting to server. Please ensure the backend is running on port 5000.');
+      }
+    }
+
+    async function submitGroup(e) {
+      e.preventDefault();
+      const members = document.querySelectorAll('#membersList .member-row input');
+      const filled = [...members].filter(i => i.value.trim());
+      if (filled.length < 2) { alert('Please add at least 2 member names.'); return; }
+
+      const id = document.getElementById('grp-id-field').value;
+      const formData = {
+        worker_id: id,
+        leader_name: e.target.querySelector('input[placeholder="e.g. Mohan Rao"]').value,
+        full_name: e.target.querySelector('input[placeholder="e.g. Mohan Rao"]').value, // Using leader name as primary name for group
+        phone: e.target.querySelector('input[type="tel"]').value,
+        trade: document.getElementById('grp-trade').value,
+        village: e.target.querySelector('input[list="villageList"]').value,
+        mandal: e.target.querySelector('input[placeholder="e.g. Gannavaram Mandal"]').value,
+        landmark: e.target.querySelector('input[placeholder="e.g. Near Bus Stand, Gannavaram"]').value,
+        experience: e.target.querySelector('input[type="number"]').value,
+        availability: e.target.querySelector('select:not(#grp-trade)').value,
+        details: e.target.querySelector('textarea').value,
+        type: 'group',
+        members_count: filled.length,
+        working_hours: document.getElementById('grp-working-hours').value,
+        price_1: document.getElementById('grp-price-1').value,
+        price_2: document.getElementById('grp-price-2').value,
+        price_3: document.getElementById('grp-price-3').value,
+        aadhaar_no: document.getElementById('grp-aadhaar').value,
+        eshram_uan: document.getElementById('grp-eshram').value,
+        group_members: JSON.stringify(filled.map(i => i.value.trim())),
+        account_type: document.getElementById('grp-acc-type').value,
+        account_no: document.getElementById('grp-acc-no').value,
+        ifsc_code: document.getElementById('grp-ifsc').value,
+        bank_name: document.getElementById('grp-bank-name').value,
+        account_name: document.getElementById('grp-acc-name').value
+      };
+
+      try {
+        const response = await fetch(`${API_BASE}/api/register`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(formData)
+        });
+        const data = await response.json();
+        if (response.ok) {
+          document.getElementById('modal-id-val').textContent = data.worker_id;
+          grpCounter++;
+          document.getElementById('successModal').classList.add('show');
+        } else {
+          alert('Registration failed: ' + (data.error || 'Unknown error'));
+        }
+      } catch (err) {
+        console.error('Connection Error:', err);
+        alert('Error connecting to server. Please ensure the backend is running on port 5000.');
+      }
+    }
+
+    function closeModal() {
+      document.getElementById('successModal').classList.remove('show');
+      window.location.href = 'index.html';
+    }
+
+    /* close modal on overlay click */
+    document.getElementById('successModal').addEventListener('click', function (e) {
+      if (e.target === this) closeModal();
+    });
+
+    /* Live Location */
+    function getLiveLocation(btn) {
+      if (navigator.geolocation) {
+        const originalText = btn.textContent;
+        btn.textContent = '⏳ Locating...';
+        btn.disabled = true;
+        navigator.geolocation.getCurrentPosition(
+          (position) => {
+            const lat = position.coords.latitude;
+            const lng = position.coords.longitude;
+            const mapsLink = `https://maps.google.com/?q=${lat},${lng}`;
+
+            // Find the closest input inside the same field
+            const target = btn.closest('.field').querySelector('input');
+            if (target.value) {
+              target.value += ' | Live Location: ' + mapsLink;
+            } else {
+              target.value = 'Live Location: ' + mapsLink;
+            }
+
+            btn.textContent = '✅ Added';
+            setTimeout(() => { btn.textContent = originalText; btn.disabled = false; }, 3000);
+          },
+          (error) => {
+            alert('Error getting location. Please make sure location access is allowed.');
+            btn.textContent = originalText;
+            btn.disabled = false;
+          }
+        );
+      } else {
+        alert("Geolocation is not supported by your browser.");
+      }
+    }
+  </script>
+  <datalist id="tradeList">
+    <option value="Agriculture">
+    <option value="Animal Husbandry">
+    <option value="Barber / Beautician">
+    <option value="Builder / Mason">
+    <option value="Carpenter">
+    <option value="Cooking / Catering">
+    <option value="Driver">
+    <option value="Electrician">
+    <option value="Gardening / Landscaping">
+    <option value="Helper / Daily Labour">
+    <option value="Housekeeping / Maid">
+    <option value="Irrigation / Borewell">
+    <option value="Mechanic">
+    <option value="Painter">
+    <option value="Plumber">
+    <option value="Priest / Purohit">
+    <option value="Security Guard">
+    <option value="Tailor / Seamstress">
+    <option value="Washerman / Laundry">
+    <option value="Welder / Blacksmith">
+  </datalist>
+
+  <datalist id="villageList">
+    <option value="Thimmareddy palem">
+    <option value="lingasamudram">
+    <option value="singarapalem">
+    <option value="gangapalem">
+    <option value="Pedavegi">
+    <option value="Nandigama">
+    <option value="Gannavaram">
+    <option value="Tiruvuru">
+  </datalist>
+
+  <datalist id="bankList">
+    <option value="State Bank of India (SBI)">
+    <option value="Canara Bank">
+    <option value="Andhra Pragathi Grameena Bank">
+    <option value="Chaitanya Godavari Grameena Bank">
+    <option value="Saptagiri Grameena Bank">
+    <option value="Andhra Bank (Union Bank of India)">
+    <option value="Corporation Bank (Union Bank of India)">
+    <option value="Punjab National Bank (PNB)">
+    <option value="Bank of Baroda">
+    <option value="HDFC Bank">
+    <option value="ICICI Bank">
+    <option value="Axis Bank">
+    <option value="Kotak Mahindra Bank">
+    <option value="Indian Bank">
+    <option value="Indian Overseas Bank">
+    <option value="UCO Bank">
+    <option value="Bank of India">
+    <option value="Central Bank of India">
+    <option value="Federal Bank">
+    <option value="IDBI Bank">
+    <option value="IndusInd Bank">
+    <option value="Yes Bank">
+    <option value="Bandhan Bank">
+    <option value="AU Small Finance Bank">
+    <option value="Paytm Payments Bank">
+    <option value="Airtel Payments Bank">
+  </datalist>
+</body>
+
+</html>

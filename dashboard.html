@@ -1,0 +1,1583 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Unified Dashboard - GramaSeva</title>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;600;700;800&family=Fraunces:ital,wght@0,700;0,900;1,400&display=swap"
+    rel="stylesheet">
+  <script src="https://unpkg.com/tesseract.js@v2.1.0/dist/tesseract.min.js"></script>
+  <script src="lang.js"></script>
+  <style>
+    :root {
+      --clay: #c8502a;
+      --clay-lt: #e8724d;
+      --clay-dk: #8c3318;
+      --earth: #2b1f14;
+      --soil: #4a3422;
+      --sand: #f5ede0;
+      --wheat: #e8d5b7;
+      --leaf: #3d7a3a;
+      --sky: #dceef5;
+      --ink: #1a1008;
+      --mist: #f9f4ee;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Sora', sans-serif;
+      background: var(--mist);
+      color: var(--ink);
+      line-height: 1.5;
+    }
+
+    header {
+      background: var(--earth);
+      border-top: 3px solid var(--leaf-lt);
+      border-bottom: 3px solid var(--leaf-lt);
+      padding: 15px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      text-decoration: none;
+    }
+
+    .logo-mark {
+      width: 36px;
+      height: 36px;
+      background: var(--clay);
+      border-radius: 9px;
+      display: grid;
+      place-items: center;
+      font-size: 17px;
+    }
+
+    .logo-text h1 {
+      font-family: 'Fraunces', serif;
+      font-size: 1.25rem;
+      color: var(--sand);
+      font-weight: 900;
+    }
+
+    .logo-text span {
+      font-size: 0.6rem;
+      color: var(--clay-lt);
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      font-weight: 600;
+    }
+
+    nav a {
+      color: rgba(245, 237, 224, 0.7);
+      text-decoration: none;
+      padding: 7px 13px;
+      font-weight: 600;
+      font-size: 0.85rem;
+    }
+
+    nav a:hover {
+      color: var(--sand);
+    }
+
+    .container {
+      max-width: 900px;
+      margin: 40px auto;
+      padding: 0 20px;
+    }
+
+    .dashboard-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      margin-bottom: 35px;
+      border-bottom: 1px solid var(--wheat);
+      padding-bottom: 20px;
+    }
+
+    h2 {
+      font-family: 'Fraunces', serif;
+      font-size: 2.2rem;
+      color: var(--earth);
+    }
+
+    .login-card {
+      background: white;
+      border: 2px solid var(--wheat);
+      border-radius: 16px;
+      padding: 35px;
+      max-width: 420px;
+      margin: 60px auto;
+      text-align: center;
+      box-shadow: 0 15px 40px rgba(74, 52, 34, 0.1);
+    }
+
+    .login-card input {
+      width: 100%;
+      padding: 14px;
+      margin: 18px 0;
+      border: 1.5px solid var(--wheat);
+      border-radius: 10px;
+      font-family: 'Sora', sans-serif;
+      font-size: 1rem;
+    }
+
+    .btn-main {
+      background: var(--clay);
+      color: white;
+      border: none;
+      padding: 14px 28px;
+      border-radius: 10px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.25s;
+      font-family: 'Sora', sans-serif;
+      text-decoration: none;
+      display: inline-block;
+      text-align: center;
+    }
+
+    .btn-main:hover {
+      background: var(--clay-dk);
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(200, 80, 42, 0.3);
+    }
+
+    .section-label {
+      font-size: 0.8rem;
+      font-weight: 800;
+      color: var(--clay);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      margin-bottom: 10px;
+      display: block;
+    }
+
+    .worker-card {
+      background: white;
+      border: 1px solid var(--wheat);
+      border-radius: 18px;
+      padding: 25px;
+      box-shadow: 0 6px 20px rgba(74, 52, 34, 0.06);
+      margin-bottom: 25px;
+      transition: transform 0.2s;
+    }
+
+    .worker-card:hover {
+      transform: translateY(-3px);
+      border-color: var(--clay-lt);
+    }
+
+    .switch {
+      position: relative;
+      display: inline-block;
+      width: 60px;
+      height: 30px;
+    }
+
+    .switch input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+
+    .slider {
+      position: absolute;
+      cursor: pointer;
+      inset: 0;
+      background-color: #ccc;
+      transition: .4s;
+      border-radius: 34px;
+    }
+
+    .slider:before {
+      position: absolute;
+      content: "";
+      height: 22px;
+      width: 22px;
+      left: 4px;
+      bottom: 4px;
+      background-color: white;
+      transition: .4s;
+      border-radius: 50%;
+    }
+
+    input:checked+.slider {
+      background-color: var(--leaf);
+    }
+
+    input:checked+.slider:before {
+      transform: translateX(30px);
+    }
+
+    .status-label {
+      font-weight: 700;
+      font-size: 0.9rem;
+      margin-right: 10px;
+    }
+
+    @keyframes spin {
+      0% {
+        transform: rotate(0deg);
+      }
+
+      100% {
+        transform: rotate(360deg);
+      }
+    }
+
+    /* ─── LANGUAGE TOGGLE ─── */
+    .lang-bar {
+      background: var(--clay-dk);
+      text-align: right;
+      padding: 5px 20px;
+      display: flex;
+      justify-content: flex-end;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.72rem;
+      color: rgba(245, 237, 224, 0.7);
+      font-weight: 600;
+    }
+
+    .lang-toggle {
+      display: flex;
+      background: rgba(0, 0, 0, 0.25);
+      border-radius: 50px;
+      overflow: hidden;
+      border: 1px solid rgba(255, 255, 255, 0.15);
+    }
+
+    .lang-btn {
+      padding: 3px 10px;
+      font-size: 0.65rem;
+      font-weight: 700;
+      cursor: pointer;
+      border: none;
+      background: transparent;
+      color: rgba(245, 237, 224, 0.6);
+      font-family: 'Sora', sans-serif;
+      transition: all 0.2s;
+    }
+
+    .lang-btn.active {
+      background: var(--clay);
+      color: white;
+      border-radius: 50px;
+    }
+
+    /* --- LIVE SCANNER STYLES --- */
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.85);
+      backdrop-filter: blur(8px);
+      display: none;
+      justify-content: center;
+      align-items: center;
+      z-index: 30000;
+    }
+
+    .scanner-box {
+      background: white;
+      width: 90%;
+      max-width: 450px;
+      padding: 25px;
+      border-radius: 25px;
+      position: relative;
+      border: 4px solid var(--leaf);
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+    }
+
+    .video-container {
+      width: 100%;
+      height: 280px;
+      background: black;
+      border-radius: 15px;
+      overflow: hidden;
+      position: relative;
+      border: 2px solid var(--earth);
+    }
+
+    #scannerVideo {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .scan-overlay {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 80%;
+      height: 45%;
+      border: 3px dashed var(--leaf);
+      border-radius: 12px;
+      box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.5);
+    }
+
+    .scan-line {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 3px;
+      background: var(--leaf);
+      box-shadow: 0 0 20px var(--leaf);
+      animation: scanAnim 2s linear infinite;
+    }
+
+    @keyframes scanAnim {
+      0% {
+        top: 0;
+      }
+
+      100% {
+        top: 100%;
+      }
+    }
+
+    .bookings-grid {
+      display: grid;
+      gap: 20px;
+    }
+
+    .pill {
+      display: inline-block;
+      padding: 4px 12px;
+      border-radius: 50px;
+      font-size: 0.75rem;
+      font-weight: 700;
+      margin-right: 8px;
+    }
+
+    .status-badge {
+      display: inline-block;
+      padding: 5px 14px;
+      border-radius: 50px;
+      font-size: 0.75rem;
+      font-weight: 800;
+      text-transform: uppercase;
+    }
+
+    .status-pending {
+      background: #fff3cd;
+      color: #856404;
+    }
+
+    .status-completed {
+      background: var(--leaf);
+      color: white;
+      border: 1px solid var(--earth);
+    }
+
+    .status-cancelled {
+      background: #f8d7da;
+      color: #721c24;
+    }
+
+    .bk-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 15px;
+    }
+
+    .bk-date {
+      font-weight: 800;
+      color: var(--clay-dk);
+      font-size: 0.95rem;
+    }
+
+    #loading {
+      text-align: center;
+      padding: 40px;
+      font-weight: 600;
+      color: var(--soil);
+    }
+
+    .dashboard-layout {
+      display: flex;
+      gap: 40px;
+      margin-top: 40px;
+      position: relative;
+    }
+
+    .sidebar {
+      width: 260px;
+      position: sticky;
+      top: 40px;
+      height: fit-content;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .sidebar-link {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 14px 20px;
+      text-decoration: none;
+      color: var(--soil);
+      font-weight: 700;
+      font-size: 0.9rem;
+      border-radius: 12px;
+      transition: all 0.2s;
+      border: 1.5px solid transparent;
+    }
+
+    .sidebar-link:hover {
+      background: var(--wheat);
+      color: var(--clay);
+    }
+
+    .sidebar-link.active {
+      background: var(--earth);
+      color: var(--sand);
+      border-color: var(--clay);
+    }
+
+    .main-content {
+      flex: 1;
+      min-width: 0;
+    }
+
+    @media (max-width: 900px) {
+      .dashboard-layout {
+        flex-direction: column;
+        gap: 20px;
+      }
+
+      .sidebar {
+        width: 100%;
+        position: relative;
+        top: 0;
+        flex-direction: row;
+        overflow-x: auto;
+        padding-bottom: 10px;
+        -webkit-overflow-scrolling: touch;
+      }
+
+      .sidebar-link {
+        white-space: nowrap;
+        padding: 10px 16px;
+        font-size: 0.8rem;
+      }
+
+      .sidebar::-webkit-scrollbar {
+        display: none;
+      }
+    }
+
+    @media (max-width: 600px) {
+      .dashboard-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 15px;
+      }
+
+      .btn-main {
+        width: 100%;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="lang-bar">
+    <span>Language / భాష:</span>
+    <div class="lang-toggle">
+      <button class="lang-btn" id="lang-btn-en" onclick="GS_Lang.set('en')">EN</button>
+      <button class="lang-btn" id="lang-btn-te" onclick="GS_Lang.set('te')">తె</button>
+    </div>
+  </div>
+
+  <header>
+    <a href="index.html" class="logo">
+      <div class="logo-mark">🌿</div>
+      <div class="logo-text">
+        <h1>GramaSeva</h1>
+        <span>Village Worker Connect</span>
+      </div>
+    </a>
+    <nav>
+      <a href="index.html" data-gs-key="nav_home">Home</a>
+      <a href="dashboard.html" style="color:var(--sand);" data-gs-key="nav_dashboard">My Dashboard</a>
+    </nav>
+  </header>
+
+  <div class="container" id="loginContainer">
+    <div class="login-card">
+      <div style="font-size:3rem; margin-bottom:15px;">📊</div>
+      <h3 style="margin-bottom:10px; color:var(--earth);" data-gs-key="dash_welcome_title">Welcome to Your Dashboard
+      </h3>
+      <p style="font-size:0.9rem; color:var(--soil);" data-gs-key="dash_welcome_desc">Enter your registered phone number
+        to view your profile, incoming jobs, and service requests.</p>
+      <form id="loginForm">
+        <div id="phoneStep">
+          <input type="tel" id="phoneInput" placeholder="+91 1234567890" required pattern="(\+91|0)?[0-9]{10}"
+            autocomplete="tel">
+          <button type="submit" class="btn-main" data-gs-key="dash_verify_btn">Verify Phone Number</button>
+        </div>
+        <div id="waStep"
+          style="display:none; margin-top:15px; padding:20px; background:rgba(61,122,58,0.05); border-radius:15px; border:2px dashed var(--leaf); text-align:center;">
+          <p style="font-size:0.85rem; color:var(--soil); margin-bottom:15px; line-height:1.4;"
+            data-gs-key="dash_unlock_desc">To protect your account, please click the button below to
+            <strong>Unlock</strong> your code on this screen using WhatsApp.
+          </p>
+          <button type="button" id="btnUnlockWa" class="btn-main" style="background:var(--leaf);"
+            data-gs-key="dash_unlock_btn">📩 Unlock Code via WhatsApp</button>
+        </div>
+        <div id="otpStep" style="display:none; margin-top:15px;">
+          <p style="font-size:0.8rem; color:var(--leaf); font-weight:700; margin-bottom:10px;"
+            data-gs-key="dash_otp_sent">✅ OTP sent to your number!</p>
+          <input type="text" id="otpInput" data-placeholder-en="Enter 4-Digit OTP"
+            data-placeholder-te="4-అంకె OTP నమోదు చేయండి" maxlength="4"
+            style="text-align:center; letter-spacing:8px; font-size:1.2rem; font-weight:900;">
+          <button type="button" id="btnVerifyOtp" class="btn-main" style="background:var(--clay);"
+            data-gs-key="dash_access_btn">Access My Dashboard</button>
+          <button type="button" onclick="location.reload()"
+            style="background:none; border:none; color:var(--soil); font-size:0.75rem; margin-top:10px; cursor:pointer; text-decoration:underline;"
+            data-gs-key="dash_change_num">Change Number</button>
+        </div>
+      </form>
+      <p style="font-size:0.8rem; color:#888; margin-top:20px;"><span data-gs-key="dash_no_account">Don't have an
+          account?</span> <a href="register.html" style="color:var(--clay); font-weight:600;"
+          data-gs-key="dash_register_link">Register as Worker</a></p>
+    </div>
+  </div>
+
+  <div class="container" id="dashboardContainer" style="display:none;">
+    <div class="dashboard-header">
+      <div>
+        <span class="section-label" data-gs-key="dash_your_hub">Your Personal Hub</span>
+        <h2 data-gs-key="dash_my_dash">My Dashboard</h2>
+        <p style="color:var(--soil); font-size:0.95rem; margin-top:5px;">
+          <span data-gs-key="dash_viewing_for">Viewing data for:</span>
+          <strong style="color:var(--clay);">+91 <span id="displayPhone"></span></strong>
+          <a href="dashboard.html" style="color:#888; font-size:0.8rem; margin-left:15px; text-decoration:none;"
+            data-gs-key="dash_logout">[Logout / Change]</a>
+        </p>
+      </div>
+      <a href="index.html#workers" class="btn-main" style="width:auto;" data-gs-key="dash_book_new">+ Book New
+        Service</a>
+    </div>
+
+    <div class="dashboard-layout">
+      <!-- SIDEBAR -->
+      <aside class="sidebar">
+        <a href="javascript:void(0)" id="nav-profile" class="sidebar-link active"
+          onclick="showSection('profileSection', this)">
+          <div style="font-size:1.4rem;">👤</div>
+          <div>
+            <div style="font-weight:800;" data-gs-key="sidebar_profile">My Profile</div>
+            <div style="font-size:0.65rem; font-weight:400; opacity:0.7;" data-gs-key="sidebar_profile_sub">View details
+              & verify account</div>
+          </div>
+        </a>
+        <a href="javascript:void(0)" id="nav-worker" class="sidebar-link" onclick="showSection('workerSection', this)">
+          <div style="font-size:1.4rem;">📥</div>
+          <div>
+            <div style="font-weight:800;" data-gs-key="sidebar_incoming">Incoming Jobs</div>
+            <div style="font-size:0.65rem; font-weight:400; opacity:0.7;" data-gs-key="sidebar_incoming_sub">Customers
+              who booked you</div>
+          </div>
+        </a>
+        <a href="javascript:void(0)" id="nav-customer" class="sidebar-link"
+          onclick="showSection('customerSection', this)">
+          <div style="font-size:1.4rem;">📅</div>
+          <div>
+            <div style="font-weight:800;" data-gs-key="sidebar_requests">My Requests</div>
+            <div style="font-size:0.65rem; font-weight:400; opacity:0.7;" data-gs-key="sidebar_requests_sub">Workers you
+              have booked</div>
+          </div>
+        </a>
+        <a href="javascript:void(0)" id="nav-finance" class="sidebar-link"
+          onclick="showSection('financeSection', this)">
+          <div style="font-size:1.4rem;">💰</div>
+          <div>
+            <div style="font-weight:800;" data-gs-key="sidebar_finance">Platform Funds</div>
+            <div style="font-size:0.65rem; font-weight:400; opacity:0.7;" data-gs-key="sidebar_finance_sub">Live money &
+              welfare status</div>
+          </div>
+        </a>
+        <a href="javascript:void(0)" id="nav-account" class="sidebar-link"
+          onclick="showSection('accountSection', this)">
+          <div style="font-size:1.4rem;">🏦</div>
+          <div>
+            <div style="font-weight:800;">Bank & Payments</div>
+            <div style="font-size:0.65rem; font-weight:400; opacity:0.7;">Manage your account details</div>
+          </div>
+        </a>
+        <a href="javascript:void(0)" id="nav-earnings" class="sidebar-link" style="display:none;"
+          onclick="showSection('earningsSection', this)">
+          <div style="font-size:1.4rem;">📜</div>
+          <div>
+            <div style="font-weight:800;" data-gs-key="sidebar_earnings">My Earnings History</div>
+            <div style="font-size:0.65rem; font-weight:400; opacity:0.7;" data-gs-key="sidebar_earnings_sub">Detailed
+              ledger of your work</div>
+          </div>
+        </a>
+        <div style="margin-top:20px; border-top:1px solid var(--wheat); padding-top:20px;">
+          <a href="register.html" class="sidebar-link" style="color:var(--clay);">
+            <span>✍️</span>
+            <span data-gs-key="sidebar_register_new">Register New</span>
+          </a>
+          <a href="index.html#workers" class="sidebar-link" style="color:var(--leaf);">
+            <span>🔍</span>
+            <span data-gs-key="sidebar_find_workers">Find Workers</span>
+          </a>
+        </div>
+      </aside>
+
+      <!-- MAIN CONTENT -->
+      <main class="main-content">
+
+        <div id="loading">⏳ Loading your records...</div>
+
+        <!-- Profile Section -->
+        <div id="profileSection" style="display:none; margin-bottom: 50px;">
+          <div id="profileContent"></div>
+          <div id="profileEmpty"
+            style="display:none; text-align:center; padding:40px; background:white; border-radius:18px; border:2px dashed var(--wheat);">
+            <div style="font-size:3rem; margin-bottom:10px;">👤</div>
+            <h3 style="color:var(--earth);" data-gs-key="empty_not_worker">Not a Registered Worker</h3>
+            <p style="color:var(--soil); margin-top:5px;" data-gs-key="empty_not_worker_desc">You don't have a worker
+              profile yet. Register to start accepting jobs.</p>
+            <a href="register.html" class="btn-main" style="margin-top:15px; width:auto;"
+              data-gs-key="empty_register_btn">Register as Worker</a>
+          </div>
+        </div>
+
+        <!-- Incoming Jobs Section -->
+        <div id="workerSection" style="display:none; margin-bottom: 50px;">
+          <div
+            style="display:flex; align-items:center; gap:12px; margin-bottom:25px; border-bottom:3px solid var(--clay-lt); padding-bottom:12px;">
+            <span style="font-size:1.8rem;">📥</span>
+            <h3 style="color:var(--earth); margin:0; font-family:'Fraunces', serif; font-size:1.6rem;"
+              data-gs-key="section_incoming_jobs">Incoming Job Requests</h3>
+          </div>
+          <div class="bookings-grid" id="workerGrid"></div>
+          <div id="workerEmpty"
+            style="display:none; text-align:center; padding:40px; background:white; border-radius:18px; border:2px dashed var(--wheat);">
+            <div style="font-size:3rem; margin-bottom:10px;">📭</div>
+            <h3 style="color:var(--earth);" data-gs-key="empty_no_jobs">No Incoming Jobs</h3>
+            <p style="color:var(--soil); margin-top:5px;" data-gs-key="empty_no_jobs_desc">You don't have any job
+              requests from customers right now.</p>
+          </div>
+        </div>
+
+        <!-- My Requests Section -->
+        <div id="customerSection" style="display:none; margin-bottom: 50px;">
+          <div
+            style="display:flex; align-items:center; gap:12px; margin-bottom:25px; border-bottom:3px solid var(--wheat); padding-bottom:12px;">
+            <span style="font-size:1.8rem;">📅</span>
+            <h3 style="color:var(--earth); margin:0; font-family:'Fraunces', serif; font-size:1.6rem;">My Service
+              Requests</h3>
+          </div>
+          <div class="bookings-grid" id="customerGrid"></div>
+          <div id="customerEmpty"
+            style="display:none; text-align:center; padding:40px; background:white; border-radius:18px; border:2px dashed var(--wheat);">
+            <div style="font-size:3rem; margin-bottom:10px;">🔍</div>
+            <h3 style="color:var(--earth);" data-gs-key="empty_no_bookings">No Bookings Found</h3>
+            <p style="color:var(--soil); margin-top:5px;" data-gs-key="empty_no_bookings_desc">You haven't booked any
+              workers yet.</p>
+            <a href="index.html#workers" class="btn-main" style="margin-top:15px; width:auto;"
+              data-gs-key="empty_find_book">Find & Book Workers</a>
+          </div>
+        </div>
+
+        <!-- Account Section -->
+        <div id="accountSection" style="display:none; margin-bottom: 50px;">
+          <div
+            style="display:flex; align-items:center; gap:12px; margin-bottom:25px; border-bottom:3px solid var(--clay-lt); padding-bottom:12px;">
+            <span style="font-size:1.8rem;">🏦</span>
+            <h3 style="color:var(--earth); margin:0; font-family:'Fraunces', serif; font-size:1.6rem;">Bank Account
+              Details</h3>
+          </div>
+
+          <div id="accountContent" class="form-card"
+            style="background:white; padding:30px; border-radius:18px; box-shadow:0 10px 30px rgba(0,0,0,0.05); border:1px solid var(--wheat);">
+            <div id="bankDetailsDisplay">
+              <p style="text-align:center; padding:20px; color:var(--soil)">Loading account information...</p>
+            </div>
+
+            <div id="bankDetailsEdit" style="display:none;">
+              <div style="display:grid; grid-template-columns: 1fr 1fr; gap:20px;">
+                <div class="field">
+                  <label
+                    style="display:block; font-weight:700; margin-bottom:5px; font-size:0.85rem; color:var(--soil);">Account
+                    Type</label>
+                  <select id="edit-acc-type"
+                    style="width:100%; padding:12px; border-radius:10px; border:1.5px solid var(--wheat); font-family:inherit;">
+                    <option value="Savings">Savings Account</option>
+                    <option value="Current">Current Account</option>
+                  </select>
+                </div>
+                <div class="field">
+                  <label
+                    style="display:block; font-weight:700; margin-bottom:5px; font-size:0.85rem; color:var(--soil);">Bank
+                    Name</label>
+                  <input type="text" id="edit-bank-name" list="bankList"
+                    style="width:100%; padding:12px; border-radius:10px; border:1.5px solid var(--wheat); font-family:inherit;">
+                </div>
+              </div>
+              <div class="field" style="margin-top:15px;">
+                <label
+                  style="display:block; font-weight:700; margin-bottom:5px; font-size:0.85rem; color:var(--soil);">Account
+                  Holder Name</label>
+                <input type="text" id="edit-acc-name"
+                  style="width:100%; padding:12px; border-radius:10px; border:1.5px solid var(--wheat); font-family:inherit;">
+              </div>
+              <div style="display:grid; grid-template-columns: 1fr 1fr; gap:20px; margin-top:15px;">
+                <div class="field">
+                  <label
+                    style="display:block; font-weight:700; margin-bottom:5px; font-size:0.85rem; color:var(--soil);">IFSC
+                    Code</label>
+                  <input type="text" id="edit-ifsc"
+                    style="width:100%; padding:12px; border-radius:10px; border:1.5px solid var(--wheat); font-family:inherit;">
+                </div>
+                <div class="field">
+                  <label
+                    style="display:block; font-weight:700; margin-bottom:5px; font-size:0.85rem; color:var(--soil);">Bank
+                    Account Number</label>
+                  <input type="text" id="edit-acc-no"
+                    style="width:100%; padding:12px; border-radius:10px; border:1.5px solid var(--wheat); font-family:inherit;">
+                </div>
+              </div>
+              <div style="margin-top:25px; display:flex; gap:15px;">
+                <button onclick="saveBankDetails()"
+                  style="flex:1; background:var(--clay); color:white; border:none; padding:14px; border-radius:12px; font-weight:800; cursor:pointer; font-size:1rem;">💾
+                  Save Changes</button>
+                <button onclick="toggleBankEdit(false)"
+                  style="flex:1; background:var(--sand); color:var(--soil); border:1px solid var(--wheat); padding:14px; border-radius:12px; font-weight:800; cursor:pointer; font-size:1rem;">Cancel</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Earnings History Section -->
+        <div id="earningsSection" style="display:none; margin-bottom: 50px;">
+          <div
+            style="display:flex; align-items:center; gap:12px; margin-bottom:25px; border-bottom:3px solid var(--clay); padding-bottom:12px;">
+            <span style="font-size:1.8rem;">📜</span>
+            <h3 style="color:var(--earth); margin:0; font-family:'Fraunces', serif; font-size:1.6rem;">My Earnings
+              History</h3>
+          </div>
+          <div id="earningsList" style="display:grid; gap:15px;"></div>
+          <div id="earningsEmpty"
+            style="display:none; text-align:center; padding:40px; background:white; border-radius:18px; border:2px dashed var(--wheat);">
+            <div style="font-size:3rem; margin-bottom:10px;">📉</div>
+            <h3 style="color:var(--earth);">No Earnings Yet</h3>
+            <p style="color:var(--soil); margin-top:5px;">Complete your first job to see your earnings history here.</p>
+          </div>
+        </div>
+
+        <!-- Finance Overview -->
+        <div id="financeSection"
+          style="display:none; margin-top: 0px; background: var(--earth); color: var(--sand); padding: 30px; border-radius: 20px; border-bottom: 5px solid var(--clay);">
+          <div
+            style="display:flex; align-items:center; gap:12px; margin-bottom:25px; border-bottom:1px solid rgba(255,255,255,0.1); padding-bottom:12px;">
+            <span style="font-size:1.8rem;">💰</span>
+            <h3 style="color:var(--sand); margin:0; font-family:'Fraunces', serif; font-size:1.6rem;" id="financeTitle">
+              My Financial Overview</h3>
+          </div>
+          <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap:20px;">
+            <div style="background:rgba(255,255,255,0.1); padding:20px; border-radius:15px; text-align:center;">
+              <p style="font-size:0.8rem; text-transform:uppercase; opacity:0.7; letter-spacing:0.1em;">Escrow (Held)
+              </p>
+              <h2 style="font-size:2rem; color:var(--clay-lt);" id="fin-escrow">₹0</h2>
+            </div>
+            <div style="background:rgba(255,255,255,0.1); padding:20px; border-radius:15px; text-align:center;">
+              <p style="font-size:0.8rem; text-transform:uppercase; opacity:0.7; letter-spacing:0.1em;">Funds Released
+              </p>
+              <h2 style="font-size:2rem; color:var(--leaf);" id="fin-released">₹0</h2>
+            </div>
+            <div style="background:rgba(255,255,255,0.1); padding:20px; border-radius:15px; text-align:center;">
+              <p style="font-size:0.8rem; text-transform:uppercase; opacity:0.7; letter-spacing:0.1em;">Welfare Fund</p>
+              <h2 style="font-size:2rem; color:var(--sky);" id="fin-welfare">₹0</h2>
+            </div>
+          </div>
+        </div>
+
+    </div>
+    </main> <!-- end main-content -->
+  </div> <!-- end dashboard-layout -->
+  </div>
+
+  <!-- Live Camera Scanner Modal -->
+  <div id="scannerModal" class="modal-overlay">
+    <div class="scanner-box">
+      <div style="text-align:center; margin-bottom:20px;">
+        <h3 style="font-family:'Fraunces', serif; color:var(--earth);">Live AI Scanner</h3>
+        <p style="font-size:0.85rem; color:var(--soil);">Hold your Aadhaar card inside the green box.</p>
+      </div>
+
+      <div class="video-container">
+        <video id="scannerVideo" autoplay playsinline muted></video>
+        <div class="scan-overlay">
+          <div class="scan-line"></div>
+        </div>
+      </div>
+
+      <div id="scanStatus"
+        style="margin-top:20px; padding:15px; background:var(--mist); border-radius:12px; text-align:center; font-size:0.9rem; font-weight:700; color:var(--leaf);">
+        🔍 Searching for Aadhaar Number...
+      </div>
+
+      <button onclick="stopScanner()" class="btn-main" style="margin-top:20px; background:var(--clay);">Cancel
+        Scan</button>
+      <canvas id="scannerCanvas" style="display:none;"></canvas>
+    </div>
+  </div>
+
+  <script>
+    const API_BASE = window.location.hostname === '127.0.0.1' || window.location.hostname === 'localhost'
+      ? 'http://127.0.0.1:5000'
+      : ''; // Use relative paths for Vercel deployment
+
+    const params = new URLSearchParams(window.location.search);
+    const phone = params.get('phone');
+    const waUrl = params.get('wa');
+
+    if (phone) {
+      document.getElementById('loginContainer').style.display = 'none';
+      document.getElementById('dashboardContainer').style.display = 'block';
+      document.getElementById('displayPhone').textContent = phone;
+      fetchDashboardData(phone);
+
+      if (waUrl) {
+        setTimeout(() => { window.location.href = waUrl; }, 600);
+      }
+    }
+
+    document.getElementById('loginForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const btn = e.target.querySelector('button');
+      let p = document.getElementById('phoneInput').value.trim();
+      p = p.replace(/^(\+91|0)/, '');
+
+      if (!p) return;
+
+      btn.textContent = 'Checking...';
+      btn.disabled = true;
+
+      try {
+        // First check if user exists (either as worker or has bookings)
+        const res = await fetch(`${API_BASE}/api/workers/phone/${p}`);
+        if (!res.ok) {
+          // Also check if they are a customer with bookings
+          const resCust = await fetch(`${API_BASE}/api/user/bookings/${p}`);
+          const custData = await resCust.json();
+          if (custData.length === 0) {
+            alert("Error: Phone number not registered. Please register first.");
+            btn.textContent = 'Verify Phone Number';
+            btn.disabled = false;
+            return;
+          }
+        }
+
+        // Prepare for Secure WhatsApp Unlock
+        const mockOtp = Math.floor(1000 + Math.random() * 9000).toString();
+        window.currentMockOtp = mockOtp;
+        window.currentLoginPhone = p;
+
+        // Show the Unlock Step instead of the code
+        document.getElementById('phoneStep').style.display = 'none';
+        document.getElementById('waStep').style.display = 'block';
+
+      } catch (err) {
+        alert("Server Error. Please try again later.");
+        btn.textContent = 'Verify Phone Number';
+        btn.disabled = false;
+      }
+    });
+
+    document.getElementById('btnUnlockWa').addEventListener('click', () => {
+      const otp = window.currentMockOtp;
+      const phone = window.currentLoginPhone;
+
+      // 1. Open WhatsApp with a PROFESSIONAL SECURITY MESSAGE
+      const msg = encodeURIComponent(`🌿 GramaSeva Security Check\nYour private login code is: ${otp}\n\n⚠️ Do not share this code with anyone.`);
+      window.open(`https://wa.me/91${phone}?text=${msg}`, '_blank');
+
+      // 2. Hide the unlock button and show the input box
+      document.getElementById('waStep').style.display = 'none';
+      document.getElementById('otpStep').style.display = 'block';
+
+      // Focus on input
+      setTimeout(() => document.getElementById('otpInput').focus(), 500);
+    });
+
+    document.getElementById('btnVerifyOtp').addEventListener('click', () => {
+      const otp = document.getElementById('otpInput').value.trim();
+      const btn = document.getElementById('btnVerifyOtp');
+
+      if (otp === window.currentMockOtp) {
+        window.location.href = `dashboard.html?phone=${window.currentLoginPhone}`;
+      } else {
+        alert("Invalid OTP. Please enter the code shown in the notification.");
+      }
+    });
+
+    // AUTO-TRIGGER ON 4TH DIGIT
+    document.getElementById('otpInput').addEventListener('input', (e) => {
+      if (e.target.value.trim().length === 4) {
+        document.getElementById('btnVerifyOtp').click();
+      }
+    });
+    let currentWorkerProfile = null;
+
+
+    async function fetchDashboardData(phoneNumber) {
+      const loading = document.getElementById('loading');
+      try {
+        const [resCust, resWork, resProf] = await Promise.all([
+          fetch(`${API_BASE}/api/user/bookings/${phoneNumber}`),
+          fetch(`${API_BASE}/api/worker/bookings/${phoneNumber}`),
+          fetch(`${API_BASE}/api/workers/phone/${phoneNumber}`)
+        ]);
+
+        let customerData = [];
+        let workerData = [];
+        let workerProfile = null;
+
+        if (resCust.ok) customerData = await resCust.json();
+        if (resWork.ok) workerData = await resWork.json();
+        if (resProf.ok) workerProfile = await resProf.json();
+
+        // Load Finance Data
+        try {
+          const resStats = await fetch(`${API_BASE}/api/stats`);
+          const stats = await resStats.json();
+          if (resStats.ok && stats) {
+            document.getElementById('fin-escrow').textContent = '₹' + Math.floor(stats.escrowPending || 0).toLocaleString();
+            document.getElementById('fin-released').textContent = '₹' + Math.floor(stats.fundsReleased || 0).toLocaleString();
+            document.getElementById('fin-welfare').textContent = '₹' + Math.floor(stats.totalWelfare || 0).toLocaleString();
+            document.getElementById('financeSection').style.display = 'block';
+          }
+        } catch (e) { console.error("Finance load error:", e); }
+
+        loading.style.display = 'none';
+
+        // 1. Prepare Profile View
+        if (workerProfile) {
+          currentWorkerProfile = workerProfile;
+          renderWorkerProfile(workerProfile);
+          renderAccountDetails(workerProfile);
+          document.getElementById('profileSection').style.display = 'block';
+          document.getElementById('nav-account').style.display = 'flex';
+        } else if (customerData.length > 0) {
+          document.getElementById('nav-account').style.display = 'none';
+          renderCustomerProfile(customerData[0].customer_name, phoneNumber, customerData);
+          document.getElementById('profileSection').style.display = 'block';
+        } else {
+          document.getElementById('nav-account').style.display = 'none';
+          document.getElementById('profileSection').style.display = 'block';
+          renderEmptyProfile();
+        }
+
+        // 2. Prepare Worker Jobs & Stats
+        if (workerData.length > 0) {
+          renderGrid('workerGrid', workerData, 'worker');
+          renderEarnings(workerData);
+          document.getElementById('workerGrid').style.display = 'grid';
+          document.getElementById('workerEmpty').style.display = 'none';
+          document.getElementById('nav-earnings').style.display = 'flex';
+
+          // Calculate Worker Stats
+          let earned = 0;
+          let pending = 0;
+          let totalWelfare = 0;
+
+          workerData.forEach(b => {
+            const amt = parseFloat(b.amount.replace(/[^0-9.]/g, '')) || 0;
+            if (b.status === 'completed') {
+              earned += amt * 0.99;
+              totalWelfare += amt * 0.01;
+            } else if (b.status === 'pending') {
+              pending += amt;
+            }
+          });
+
+          // Update Dashboard Small Stats
+          if (document.getElementById('worker-earned')) document.getElementById('worker-earned').textContent = '₹' + Math.floor(earned).toLocaleString();
+          if (document.getElementById('worker-pending')) document.getElementById('worker-pending').textContent = '₹' + Math.floor(pending).toLocaleString();
+          if (document.getElementById('worker-jobs')) document.getElementById('worker-jobs').textContent = workerData.filter(b => b.status === 'completed').length;
+
+          // Update Main Finance Overview Box
+          document.getElementById('fin-escrow').textContent = '₹' + Math.floor(pending).toLocaleString();
+          document.getElementById('fin-released').textContent = '₹' + Math.floor(earned).toLocaleString();
+          document.getElementById('fin-welfare').textContent = '₹' + Math.floor(totalWelfare).toLocaleString();
+          document.getElementById('financeSection').style.display = 'block';
+          document.getElementById('financeTitle').textContent = 'My Earning Overview';
+        } else {
+          document.getElementById('workerGrid').style.display = 'none';
+          document.getElementById('workerEmpty').style.display = 'block';
+          document.getElementById('nav-earnings').style.display = 'none';
+        }
+
+        // 3. Prepare Customer Requests
+        if (customerData.length > 0) {
+          renderGrid('customerGrid', customerData, 'customer');
+          document.getElementById('customerGrid').style.display = 'grid';
+          document.getElementById('customerEmpty').style.display = 'none';
+        } else {
+          document.getElementById('customerGrid').style.display = 'none';
+          document.getElementById('customerEmpty').style.display = 'block';
+        }
+
+        // 4. Default View
+        showSection('profileSection', document.getElementById('nav-profile'));
+      } catch (err) {
+        loading.innerHTML = `<div style="color:red; padding:20px;">⚠️ Error: ${err.message}<br>Please check your internet and try again.</div>`;
+      }
+    }
+
+    // Normalize legacy availability values to 'available' or 'busy'
+    function normalizeStatus(val) {
+      if (!val) return 'available';
+      const v = val.toLowerCase().trim();
+      if (v === 'busy' || v === 'currently busy') return 'busy';
+      return 'available'; // 'On Call', 'Available Now', 'Weekdays Only', etc. → available
+    }
+
+    function renderWorkerProfile(w) {
+      const status = normalizeStatus(w.availability);
+      const container = document.getElementById('profileSection');
+      container.innerHTML = `
+        <div class="worker-card" style="border:2px solid var(--clay); background: linear-gradient(135deg, white 0%, #fff9f5 100%); position:relative; overflow:hidden;">
+          <div style="position:absolute; top:-20px; right:-20px; font-size:6rem; opacity:0.03; pointer-events:none;">🌿</div>
+          <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:25px; flex-wrap:wrap; gap:15px;">
+            <div>
+              <span class="pill" style="background:var(--clay); color:white; margin-bottom:10px;">Worker Account</span>
+              <h2 style="font-family:'Fraunces', serif; color:var(--earth); font-size:2.2rem; line-height:1;">${w.full_name}</h2>
+              <p style="color:var(--clay); font-weight:800; font-size:1.2rem; margin-top:8px;">${w.trade} Professional</p>
+            </div>
+            <div style="text-align:right;">
+               <div style="font-size:0.75rem; color:var(--soil); font-weight:700; text-transform:uppercase; margin-bottom:5px;">Reg Type</div>
+               <span class="pill" style="background:var(--earth); color:var(--sand); font-weight:900; margin-right:0;">${w.type.toUpperCase()}</span>
+            </div>
+          </div>
+          
+          <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap:25px; margin-top:20px;">
+            <div style="background:rgba(245,237,224,0.3); padding:15px; border-radius:12px;">
+              <h5 style="color:var(--clay-dk); margin-bottom:10px; font-size:0.8rem; text-transform:uppercase; letter-spacing:0.08em; font-weight:800;">Contact & Village</h5>
+              <p style="font-size:1.1rem;">📞 <strong>${w.phone}</strong></p>
+              <p style="margin-top:5px;">📍 ${w.village}, ${w.mandal}</p>
+              <p style="font-size:0.85rem; color:var(--soil); opacity:0.8; margin-top:3px;">Landmark: ${w.landmark || 'Not specified'}</p>
+            </div>
+            <div style="background:rgba(245,237,224,0.3); padding:15px; border-radius:12px;">
+              <h5 style="color:var(--clay-dk); margin-bottom:10px; font-size:0.8rem; text-transform:uppercase; letter-spacing:0.08em; font-weight:800;">Working Profile</h5>
+              <p>⭐ <strong>${w.experience || 0} Years</strong> Experience</p>
+              <p style="margin-top:5px;">🕒 ${w.working_hours || 'Standard Hours'}</p>
+              
+              <div style="margin-top:15px; padding-top:15px; border-top:1px solid rgba(0,0,0,0.05); display:flex; align-items:center; justify-content:space-between;">
+                <span class="status-label" style="color:${status === 'busy' ? 'var(--clay)' : 'var(--leaf)'}">${status === 'busy' ? 'Currently Busy' : 'Available Now'}</span>
+                <label class="switch">
+                  <input type="checkbox" ${status !== 'busy' ? 'checked' : ''} onchange="toggleStatus(this, '${w.phone}')">
+                  <span class="slider"></span>
+                </label>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div style="margin-top:20px; display:flex; gap:12px; align-items:center; flex-wrap:wrap;">
+          ${w.is_verified
+          ? `<span style="background:var(--leaf); color:white; padding:8px 16px; border-radius:50px; font-weight:700; font-size:0.9rem;">✅ AADHAAR VERIFIED</span>`
+          : `<button onclick="verifyWorker('${w.worker_id}')" class="btn-main" style="width:auto; padding:8px 20px; background:var(--clay); color:white;">🛡️ Verify Aadhaar KYC Now</button>`
+        }
+          ${w.eshram_uan ? `<span style="background:var(--sky); color:var(--ink); padding:8px 16px; border-radius:50px; font-weight:700; font-size:0.9rem;">🆔 e-Shram: ${w.eshram_uan}</span>` : ''}
+        </div>
+      `;
+    }
+
+    function renderAccountDetails(w) {
+      const display = document.getElementById('bankDetailsDisplay');
+      if (!w) {
+        display.innerHTML = '<p>No profile found.</p>';
+        return;
+      }
+
+      display.innerHTML = `
+        <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap:20px; margin-bottom:25px;">
+          <div style="background:var(--mist); padding:15px; border-radius:12px; border:1px solid var(--wheat);">
+            <div style="font-size:0.7rem; font-weight:800; color:var(--clay); text-transform:uppercase; margin-bottom:5px;">Bank Name</div>
+            <div style="font-weight:700; color:var(--earth);">${w.bank_name || 'Not Added'}</div>
+          </div>
+          <div style="background:var(--mist); padding:15px; border-radius:12px; border:1px solid var(--wheat);">
+            <div style="font-size:0.7rem; font-weight:800; color:var(--clay); text-transform:uppercase; margin-bottom:5px;">Account Holder</div>
+            <div style="font-weight:700; color:var(--earth);">${w.account_name || 'Not Added'}</div>
+          </div>
+          <div style="background:var(--mist); padding:15px; border-radius:12px; border:1px solid var(--wheat);">
+            <div style="font-size:0.7rem; font-weight:800; color:var(--clay); text-transform:uppercase; margin-bottom:5px;">IFSC Code</div>
+            <div style="font-weight:700; color:var(--earth);">${w.ifsc_code || 'Not Added'}</div>
+          </div>
+          <div style="background:var(--mist); padding:15px; border-radius:12px; border:1px solid var(--wheat);">
+            <div style="font-size:0.7rem; font-weight:800; color:var(--clay); text-transform:uppercase; margin-bottom:5px;">Account Number</div>
+            <div style="font-weight:700; color:var(--earth); font-family:monospace; letter-spacing:1px;">${w.account_no || 'Not Added'}</div>
+          </div>
+        </div>
+        <div style="display:flex; justify-content:flex-end;">
+          <button class="btn-main" onclick="toggleBankEdit(true)" style="width:auto; padding:10px 25px;">✏️ Change Account Details</button>
+        </div>
+      `;
+
+      // Pre-fill edit fields
+      document.getElementById('edit-acc-type').value = w.account_type || 'Savings';
+      document.getElementById('edit-bank-name').value = w.bank_name || '';
+      document.getElementById('edit-acc-name').value = w.account_name || '';
+      document.getElementById('edit-ifsc').value = w.ifsc_code || '';
+      document.getElementById('edit-acc-no').value = w.account_no || '';
+    }
+
+    function toggleBankEdit(show) {
+      document.getElementById('bankDetailsDisplay').style.display = show ? 'none' : 'block';
+      document.getElementById('bankDetailsEdit').style.display = show ? 'block' : 'none';
+    }
+
+    async function saveBankDetails() {
+      const data = {
+        account_type: document.getElementById('edit-acc-type').value,
+        bank_name: document.getElementById('edit-bank-name').value,
+        account_name: document.getElementById('edit-acc-name').value,
+        ifsc_code: document.getElementById('edit-ifsc').value,
+        account_no: document.getElementById('edit-acc-no').value
+      };
+
+      if (!data.bank_name || !data.account_name || !data.account_no || !data.ifsc_code) {
+        alert("Please fill in all bank details.");
+        return;
+      }
+
+      const btn = event.target;
+      btn.disabled = true;
+      btn.innerText = "Saving...";
+
+      try {
+        const response = await fetch(`${API_BASE}/api/workers/${currentWorkerProfile.worker_id}/bank-details`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(data)
+        });
+
+        if (response.ok) {
+          alert("✅ Bank details updated successfully!");
+          // Update local profile and re-render
+          Object.assign(currentWorkerProfile, data);
+          renderAccountDetails(currentWorkerProfile);
+          toggleBankEdit(false);
+        } else {
+          alert("❌ Failed to update bank details. Please try again.");
+        }
+      } catch (err) {
+        console.error("Save error:", err);
+        alert("Connection error. Please try again later.");
+      } finally {
+        btn.disabled = false;
+        btn.innerText = "💾 Save Changes";
+      }
+    }
+
+    async function toggleStatus(checkbox, workerPhone) {
+      const newStatus = checkbox.checked ? 'available' : 'busy';
+      const label = checkbox.parentElement.previousElementSibling;
+
+      label.textContent = 'Updating...';
+      label.style.color = '#888';
+      checkbox.disabled = true;
+
+      try {
+        const response = await fetch(`${API_BASE}/api/worker/status`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ phone: workerPhone, availability: newStatus })
+        });
+
+        if (response.ok) {
+          label.textContent = newStatus === 'available' ? 'Available Now' : 'Currently Busy';
+          label.style.color = newStatus === 'available' ? 'var(--leaf)' : 'var(--clay)';
+        } else {
+          const errData = await response.json();
+          console.error('Server error:', errData);
+          alert('Failed to update status: ' + (errData.error || 'Unknown error'));
+          checkbox.checked = !checkbox.checked; // Revert
+          label.textContent = checkbox.checked ? 'Available Now' : 'Currently Busy';
+          label.style.color = checkbox.checked ? 'var(--leaf)' : 'var(--clay)';
+        }
+      } catch (err) {
+        console.error('Status update error:', err);
+        alert('Network error. Status not saved.');
+        checkbox.checked = !checkbox.checked; // Revert
+      } finally {
+        checkbox.disabled = false;
+      }
+    }
+
+    function renderCustomerProfile(name, phone, bookings) {
+      const container = document.getElementById('profileSection');
+      const latestVillage = bookings[0].customer_address.split(' - ')[0] || 'Andhra Pradesh';
+      container.innerHTML = `
+        <div class="worker-card" style="border:2px solid var(--leaf); background: linear-gradient(135deg, white 0%, #f6fff5 100%); position:relative; overflow:hidden;">
+          <div style="position:absolute; top:-20px; right:-20px; font-size:6rem; opacity:0.03; pointer-events:none;">🏘️</div>
+          <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:25px; flex-wrap:wrap; gap:15px;">
+            <div>
+              <span class="pill" style="background:var(--leaf); color:white; margin-bottom:10px;">Customer Account</span>
+              <h2 style="font-family:'Fraunces', serif; color:var(--earth); font-size:2.2rem; line-height:1;">${name}</h2>
+              <p style="color:var(--leaf); font-weight:800; font-size:1.2rem; margin-top:8px;">GramaSeva Member</p>
+            </div>
+            <div style="text-align:right;">
+               <div style="font-size:0.75rem; color:var(--soil); font-weight:700; text-transform:uppercase; margin-bottom:5px;">Activity</div>
+               <span class="pill" style="background:var(--earth); color:var(--sand); font-weight:900; margin-right:0;">${bookings.length} BOOKINGS</span>
+            </div>
+          </div>
+          
+          <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap:25px; margin-top:20px;">
+            <div style="background:rgba(245,237,224,0.3); padding:15px; border-radius:12px;">
+              <h5 style="color:var(--leaf); margin-bottom:10px; font-size:0.8rem; text-transform:uppercase; letter-spacing:0.08em; font-weight:800;">Contact Details</h5>
+              <p style="font-size:1.1rem;">📞 <strong>+91 ${phone}</strong></p>
+              <p style="margin-top:5px;">📍 Primary Village: ${latestVillage}</p>
+            </div>
+            <div style="background:rgba(245,237,224,0.3); padding:15px; border-radius:12px;">
+              <h5 style="color:var(--leaf); margin-bottom:10px; font-size:0.8rem; text-transform:uppercase; letter-spacing:0.08em; font-weight:800;">Membership Status</h5>
+              <p>⭐ <strong>Active Customer</strong></p>
+              <p style="margin-top:5px;">✅ Regular support for village workers</p>
+            </div>
+          </div>
+        </div>
+        <div style="margin-top:20px; display:flex; gap:12px; align-items:center;">
+          <div style="background:var(--sky); color:var(--ink); padding:8px 16px; border-radius:50px; font-weight:700; font-size:0.9rem;">🤝 Contributing to Worker Welfare</div>
+          <a href="register.html" style="font-size:0.85rem; color:var(--clay); font-weight:700; text-decoration:none;">Want to offer services? Register as Worker →</a>
+        </div>
+      `;
+    }
+
+    // --- AADHAAR VERHOEFF ALGORITHM (REAL-TIME VALIDATION) ---
+    const d = [
+      [0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
+      [1, 2, 3, 4, 0, 6, 7, 8, 9, 5],
+      [2, 3, 4, 0, 1, 7, 8, 9, 5, 6],
+      [3, 4, 0, 1, 2, 8, 9, 5, 6, 7],
+      [4, 0, 1, 2, 3, 9, 5, 6, 7, 8],
+      [5, 9, 8, 7, 6, 0, 4, 3, 2, 1],
+      [6, 5, 9, 8, 7, 1, 0, 4, 3, 2],
+      [7, 6, 5, 9, 8, 2, 1, 0, 4, 3],
+      [8, 7, 6, 5, 9, 3, 2, 1, 0, 4],
+      [9, 8, 7, 6, 5, 4, 3, 2, 1, 0]
+    ];
+    const p = [
+      [0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
+      [1, 5, 7, 6, 2, 8, 3, 0, 9, 4],
+      [5, 8, 0, 3, 7, 9, 6, 1, 4, 2],
+      [8, 9, 1, 6, 0, 4, 3, 5, 2, 7],
+      [9, 4, 5, 3, 1, 2, 6, 8, 7, 0],
+      [4, 2, 8, 6, 5, 7, 3, 9, 0, 1],
+      [2, 7, 9, 3, 8, 0, 6, 4, 1, 5],
+      [7, 0, 4, 6, 9, 1, 3, 2, 5, 8]
+    ];
+    const inv = [0, 4, 3, 2, 1, 5, 6, 7, 8, 9];
+
+    function validateAadhaar(aadhaar) {
+      if (!/^[2-9][0-9]{11}$/.test(aadhaar)) return false;
+      let c = 0;
+      let invertedArray = aadhaar.split('').map(Number).reverse();
+      for (let i = 0; i < invertedArray.length; i++) {
+        c = d[c][p[i % 8][invertedArray[i]]];
+      }
+      return c === 0;
+    }
+
+    let scannerStream = null;
+    let isScanning = false;
+
+    async function verifyWorker(workerId) {
+      const enteredAadhaar = prompt("🛡️ LIVE AI SCANNER\nStep 1: Please enter your 12-digit Aadhaar Number:");
+      if (!enteredAadhaar) return;
+
+      if (!validateAadhaar(enteredAadhaar)) {
+        alert("❌ INVALID NUMBER FORMAT!\nPlease enter a valid 12-digit Aadhaar number.");
+        return;
+      }
+
+      // Open Camera Modal
+      document.getElementById('scannerModal').style.display = 'flex';
+
+      try {
+        scannerStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } });
+        const video = document.getElementById('scannerVideo');
+        video.srcObject = scannerStream;
+        isScanning = true;
+
+        startLiveOCR(workerId, enteredAadhaar);
+      } catch (err) {
+        alert("Camera Access Denied. Please ensure you have given permission.");
+        stopScanner();
+      }
+    }
+
+    async function startLiveOCR(workerId, targetNum) {
+      const video = document.getElementById('scannerVideo');
+      const canvas = document.getElementById('scannerCanvas');
+      const context = canvas.getContext('2d');
+      const status = document.getElementById('scanStatus');
+      let attempts = 0;
+
+      const performScan = async () => {
+        if (!isScanning) return;
+        attempts++;
+
+        const vW = video.videoWidth;
+        const vH = video.videoHeight;
+        const cropW = vW * 0.8;
+        const cropH = vH * 0.4;
+        const cropX = (vW - cropW) / 2;
+        const cropY = (vH - cropH) / 2;
+
+        canvas.width = cropW;
+        canvas.height = cropH;
+        context.drawImage(video, cropX, cropY, cropW, cropH, 0, 0, cropW, cropH);
+
+        status.innerHTML = `<span class="spinner" style="display:inline-block; width:12px; height:12px; border:2px solid var(--leaf); border-top:2px solid transparent; border-radius:50%; animation: spin 1s linear infinite; margin-right:8px;"></span> AI Analyzing... (Attempt ${attempts})`;
+
+        try {
+          const result = await Tesseract.recognize(canvas, 'eng');
+          const fullText = result.data.text;
+          const cleanedText = fullText.replace(/[^0-9]/g, '');
+
+          if (cleanedText.includes(targetNum)) {
+            isScanning = false;
+            status.style.background = 'var(--leaf)';
+            status.style.color = 'white';
+            status.innerHTML = '✨ MATCH FOUND! FINALIZING...';
+
+            // Capture the image snapshot for database storage
+            const capturedImage = canvas.toDataURL("image/jpeg", 0.7);
+
+            const res = await fetch(`${API_BASE}/api/workers/verify`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                worker_id: workerId,
+                aadhaar_no: targetNum,
+                aadhaar_image: capturedImage
+              })
+            });
+
+            if (res.ok) {
+              alert("🎉 AI VERIFICATION SUCCESSFUL!\nYour card has been matched and verified.");
+              location.reload();
+            } else {
+              alert("Verification Error. Please try again.");
+              stopScanner();
+            }
+          } else {
+            // Provide specific feedback based on text found
+            if (cleanedText.length > 5) {
+              status.innerHTML = `⚠️ Found numbers but NO match. <br><small>Detected: ${cleanedText.substring(0, 8)}... Ensure you entered ${targetNum} correctly.</small>`;
+              status.style.background = '#fff3cd';
+              status.style.color = '#856404';
+            } else if (attempts > 10) {
+              status.innerHTML = `💡 HINT: Try better lighting or move card closer.`;
+              status.style.background = '#d1ecf1';
+              status.style.color = '#0c5460';
+            }
+
+            setTimeout(performScan, 1500);
+          }
+        } catch (e) {
+          console.error(e);
+          setTimeout(performScan, 2000);
+        }
+      };
+
+      setTimeout(performScan, 1000);
+    }
+
+    function stopScanner() {
+      isScanning = false;
+      if (scannerStream) {
+        scannerStream.getTracks().forEach(track => track.stop());
+      }
+      document.getElementById('scannerModal').style.display = 'none';
+    }
+
+    async function completeJob(bookingId) {
+      const otp = prompt("Please enter the 4-digit Completion OTP provided by the customer to release the funds:");
+      if (!otp) return;
+
+      try {
+        const res = await fetch(`${API_BASE}/api/bookings/complete`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ booking_id: bookingId, otp: otp })
+        });
+        const data = await res.json();
+        if (res.ok) {
+          alert("Job Completed! Escrow funds have been released to your account.");
+          location.reload();
+        } else {
+          alert("Error: " + data.error);
+        }
+      } catch (e) { alert("Failed to complete job."); }
+    }
+
+    function renderGrid(gridId, data, viewType) {
+      const grid = document.getElementById(gridId);
+      grid.innerHTML = data.map(b => {
+        const dateObj = new Date(b.service_date);
+        const formattedDate = dateObj.toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
+        const statusClass = b.status === 'completed' ? 'status-completed' : (b.status === 'cancelled' ? 'status-cancelled' : 'status-pending');
+
+        if (viewType === 'customer') {
+          return `
+            <div class="worker-card" style="border-left: 5px solid var(--clay-lt);">
+              <div class="bk-header">
+                <div>
+                  <p style="font-size:0.7rem; color:#999; margin-bottom:4px;">BOOKING ID: #${b.booking_id}</p>
+                  <h4 style="font-size:1.2rem; color:var(--earth);">${b.worker_name}</h4>
+                  <p style="color:var(--clay); font-weight:700;">${b.worker_trade}</p>
+                </div>
+                <div style="text-align:right;">
+                  <div class="status-badge ${statusClass}">${b.status}</div>
+                  <div class="bk-date" style="margin-top:8px;">📅 ${formattedDate}</div>
+                </div>
+              </div>
+              <div style="padding:15px; background:var(--mist); border-radius:12px; border:1px solid var(--wheat);">
+                <p>📍 Service Location: <strong>${b.customer_address.split(' - ')[0]}</strong></p>
+                <p>📞 Worker Phone: <strong style="color:var(--clay);">${b.worker_phone}</strong></p>
+                <p style="margin-top:8px; font-size:0.9rem; font-weight:700; color:var(--soil);">Amount Paid (Escrow): ${b.amount}</p>
+              </div>
+              ${b.status === 'pending' ? `
+                <div style="margin-top:12px; padding:10px; background:#fff3cd; border:1px solid #ffeeba; border-radius:8px; text-align:center;">
+                  <p style="font-size:0.75rem; color:#856404; font-weight:700;">🔑 COMPLETION OTP: <span style="font-size:1.1rem; letter-spacing:2px; margin-left:5px;">${b.completion_otp || '****'}</span></p>
+                  <p style="font-size:0.65rem; color:#856404; margin-top:4px;">Give this code to the worker ONLY after work is finished.</p>
+                </div>
+              ` : ''}
+            </div>`;
+        } else {
+          // Worker View (INCOMING JOBS)
+          return `
+            <div class="worker-card" style="border-left: 5px solid var(--clay);">
+              <div class="bk-header">
+                <div>
+                  <p style="font-size:0.7rem; color:#999; margin-bottom:4px;">INCOMING JOB ID: #${b.booking_id}</p>
+                  <h4 style="font-size:1.3rem; color:var(--earth);">${b.customer_name}</h4>
+                  <p style="background:var(--sky); color:var(--ink); display:inline-block; padding:2px 10px; border-radius:4px; font-size:0.75rem; font-weight:700; margin-top:5px;">CUSTOMER</p>
+                </div>
+                <div style="text-align:right;">
+                  <div class="status-badge ${statusClass}">${b.status}</div>
+                  <div class="bk-date" style="margin-top:8px;">📅 ${formattedDate}</div>
+                </div>
+              </div>
+              
+              <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap:15px; margin-top:15px;">
+                <div style="padding:15px; background:rgba(200,80,42,0.04); border-radius:12px; border:1.5px dashed var(--clay-lt);">
+                  <h5 style="color:var(--clay-dk); font-size:0.8rem; text-transform:uppercase; margin-bottom:8px;">Job Location</h5>
+                  <p style="font-size:1.1rem; font-weight:700; overflow-wrap: break-word; word-break: break-word;">${b.customer_address}</p>
+                </div>
+                <div style="padding:15px; background:rgba(200,80,42,0.04); border-radius:12px; border:1.5px dashed var(--clay-lt);">
+                  <h5 style="color:var(--clay-dk); font-size:0.8rem; text-transform:uppercase; margin-bottom:8px;">Contact Customer</h5>
+                  <p style="font-size:1.2rem; font-weight:800; color:var(--clay);">📞 ${b.customer_phone}</p>
+                </div>
+              </div>
+
+              <div style="margin-top:15px; padding:12px; background:white; border:1px solid var(--wheat); border-radius:10px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
+                <div>
+                  <span style="color:var(--soil); font-weight:600;">💰 Service:</span>
+                  <strong style="color:var(--clay-dk); font-size:1.1rem;">${b.amount}</strong>
+                </div>
+                <div style="background:rgba(61,122,58,0.1); padding:4px 10px; border-radius:6px; color:var(--leaf); font-size:0.85rem; font-weight:700;">
+                  Welfare Contribution: ${b.welfare_fee || '₹5'}
+                </div>
+              </div>
+
+              <div style="margin-top:15px; display:flex; gap:10px;">
+                ${b.status === 'pending'
+              ? `<button onclick="completeJob('${b.booking_id}')" class="btn-main" style="flex:1; background:var(--leaf);">✅ Mark Completed & Release Funds</button>`
+              : `<div style="flex:1; background:var(--sand); color:var(--soil); padding:12px; border-radius:10px; text-align:center; font-weight:700;">✨ Job Finished Successfully</div>`
+            }
+                <a href="tel:${b.customer_phone}" class="btn-main" style="width:auto; background:var(--earth);">📞 Call Customer</a>
+              </div>
+            </div>`;
+        }
+      }).join('');
+    }
+    function renderEarnings(data) {
+      const list = document.getElementById('earningsList');
+      const empty = document.getElementById('earningsEmpty');
+      const completed = data.filter(b => b.status === 'completed');
+
+      if (completed.length === 0) {
+        list.style.display = 'none';
+        empty.style.display = 'block';
+        return;
+      }
+
+      list.style.display = 'grid';
+      empty.style.display = 'none';
+
+      list.innerHTML = completed.map(b => {
+        const dateObj = new Date(b.service_date);
+        const dayName = dateObj.toLocaleDateString('en-IN', { weekday: 'long' });
+        const formattedDate = dateObj.toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
+        const village = b.customer_address.split(' - ')[0] || 'Unknown Village';
+        const amt = parseFloat(b.amount.replace(/[^0-9.]/g, '')) || 0;
+        const net = Math.floor(amt * 0.99);
+
+        return `
+          <div class="worker-card" style="margin-bottom:0; border-left: 5px solid var(--leaf); display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:15px; background:white;">
+            <div>
+              <p style="font-size:0.7rem; color:#999; margin-bottom:4px;">ID: #${b.booking_id}</p>
+              <p style="font-size:0.75rem; color:var(--clay); font-weight:800; text-transform:uppercase; letter-spacing:0.05em; margin-bottom:4px;">${dayName}</p>
+              <h4 style="font-size:1.1rem; color:var(--earth);">${formattedDate}</h4>
+              <p style="font-size:0.9rem; color:var(--soil); margin-top:2px;">📍 ${village}</p>
+              <p style="font-size:0.85rem; color:var(--clay-dk); font-weight:700; margin-top:5px;">👤 Customer: ${b.customer_name}</p>
+            </div>
+            <div style="text-align:right;">
+              <p style="font-size:0.7rem; color:#999; font-weight:700;">NET EARNED</p>
+              <h3 style="color:var(--leaf); font-size:1.4rem; font-weight:900;">₹${net.toLocaleString()}</h3>
+              <p style="font-size:0.65rem; color:#aaa;">(After 1% Welfare Fee)</p>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function showSection(sectionId, el) {
+      // Hide all main content sections
+      const sections = ['profileSection', 'workerSection', 'customerSection', 'financeSection', 'earningsSection', 'accountSection'];
+      sections.forEach(id => {
+        const s = document.getElementById(id);
+        if (s) s.style.display = 'none';
+      });
+
+      // Show the selected section
+      const target = document.getElementById(sectionId);
+      if (target) target.style.display = 'block';
+
+      // Highlight sidebar link
+      document.querySelectorAll('.sidebar-link').forEach(link => link.classList.remove('active'));
+      if (el) el.classList.add('active');
+    }
+  </script>
+</body>
+
+</html>

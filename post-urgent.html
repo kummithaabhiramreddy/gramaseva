@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Post Urgent Job – GramaSeva</title>
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;600;700;800&family=Fraunces:ital,wght@0,700;0,900;1,400&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --clay: #c8502a;
+      --clay-lt: #e8724d;
+      --clay-dk: #8c3318;
+      --earth: #2b1f14;
+      --soil: #4a3422;
+      --sand: #f5ede0;
+      --wheat: #e8d5b7;
+      --leaf: #3d7a3a;
+      --leaf-lt: #5aad56;
+      --mist: #faf6f0;
+      --ink: #1a1008;
+      --gold: #d4a017;
+      --border: #e2cdb0;
+      --input-bg: #fff;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Sora', sans-serif; background: var(--mist); color: var(--ink); line-height: 1.6; }
+    
+    header { background: var(--earth); border-bottom: 3px solid var(--leaf-lt); padding: 15px 0; }
+    .header-inner { max-width: 800px; margin: auto; padding: 0 20px; display: flex; align-items: center; justify-content: space-between; }
+    .logo { display: flex; align-items: center; gap: 10px; text-decoration: none; }
+    .logo-mark { background: var(--leaf); padding: 8px; border-radius: 8px; font-size: 20px; }
+    .logo-text h1 { color: var(--sand); font-family: 'Fraunces', serif; font-size: 1.2rem; }
+
+    .container { max-width: 600px; margin: 40px auto; padding: 0 20px; }
+    
+    .form-card {
+      background: white;
+      padding: 30px;
+      border-radius: 24px;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.05);
+      border: 1px solid var(--wheat);
+    }
+
+    .form-header { text-align: center; margin-bottom: 30px; }
+    .form-header h2 { font-family: 'Fraunces', serif; font-size: 2rem; color: var(--earth); margin-bottom: 10px; }
+    .form-header p { color: var(--soil); font-size: 0.95rem; opacity: 0.8; }
+
+    .field { margin-bottom: 20px; }
+    .field label { display: block; font-weight: 700; margin-bottom: 8px; color: var(--earth); font-size: 0.9rem; }
+    .field input, .field select, .field textarea {
+      width: 100%;
+      padding: 14px 18px;
+      border-radius: 12px;
+      border: 1.5px solid var(--wheat);
+      font-family: inherit;
+      font-size: 1rem;
+      background: var(--mist);
+      transition: all 0.3s;
+    }
+    .field input:focus, .field select:focus, .field textarea:focus {
+      outline: none;
+      border-color: var(--clay);
+      background: white;
+      box-shadow: 0 0 0 4px rgba(200, 80, 42, 0.1);
+    }
+
+    .submit-btn {
+      width: 100%;
+      background: var(--clay);
+      color: white;
+      border: none;
+      padding: 16px;
+      border-radius: 12px;
+      font-weight: 800;
+      font-size: 1.1rem;
+      cursor: pointer;
+      transition: all 0.3s;
+      margin-top: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+    }
+    .submit-btn:hover { background: var(--clay-dk); transform: translateY(-2px); box-shadow: 0 5px 15px rgba(200, 80, 42, 0.3); }
+
+    .success-panel {
+      display: none;
+      text-align: center;
+      padding: 40px 20px;
+    }
+    .big-check {
+      width: 80px;
+      height: 80px;
+      background: var(--leaf-lt);
+      color: white;
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      font-size: 40px;
+      margin: 0 auto 20px;
+    }
+
+    .back-home {
+      display: inline-block;
+      margin-top: 20px;
+      color: var(--soil);
+      text-decoration: none;
+      font-weight: 700;
+      font-size: 0.9rem;
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="header-inner">
+    <a href="index.html" class="logo">
+      <div class="logo-mark">🌿</div>
+      <div class="logo-text"><h1>GramaSeva</h1></div>
+    </a>
+    <a href="index.html" class="back-home" style="margin:0; color:var(--sand)">← Back Home</a>
+  </div>
+</header>
+
+<div class="container">
+  <div class="form-card" id="formCard">
+    <div class="form-header">
+      <h2 data-en="🚨 Post Urgent Job" data-te="🚨 అత్యవసర పని">🚨 Post Urgent Job</h2>
+      <p data-en="Workers in your village will see this immediately. Valid for 2 days." 
+         data-te="మీ గ్రామంలోని కార్మికులకు ఇది వెంటనే కనిపిస్తుంది. 2 రోజులు మాత్రమే ఉంటుంది.">
+         Workers in your village will see this immediately. Valid for 2 days.
+      </p>
+    </div>
+
+    <div class="field">
+      <label data-en="Your Name" data-te="మీ పేరు">Your Name</label>
+      <input type="text" id="uj-name" placeholder="Enter your full name / మీ పేరు" required>
+    </div>
+
+    <div class="field">
+      <label data-en="Phone Number" data-te="ఫోన్ నంబర్">Phone Number</label>
+      <input type="tel" id="uj-phone" placeholder="10-digit number / ఫోన్ నంబర్" required>
+    </div>
+
+    <div class="field">
+      <label data-en="Trade Needed" data-te="అవసరమైన వృత్తి">Trade Needed</label>
+      <input type="text" id="uj-trade" list="trade-list" placeholder="e.g. Plumber, Electrician / వృత్తి" required>
+      <datalist id="trade-list">
+        <option value="Agriculture">
+        <option value="Plumber">
+        <option value="Builder / Mason">
+        <option value="Electrician">
+        <option value="Carpenter">
+        <option value="Painter">
+        <option value="Mechanic">
+        <option value="Animal Husbandry">
+        <option value="Housekeeping / Maid">
+        <option value="Cooking / Catering">
+        <option value="Helper / Daily Labour">
+      </datalist>
+    </div>
+
+    <div class="field">
+      <label data-en="Your Village" data-te="మీ గ్రామం">Your Village</label>
+      <input type="text" id="uj-village" list="village-list" placeholder="Village or Area / మీ గ్రామం" required>
+      <datalist id="village-list">
+        <option value="Thimmareddy palem">
+        <option value="lingasamudram">
+        <option value="singarapalem">
+        <option value="gangapalem">
+        <option value="Pedavegi">
+        <option value="Nandigama">
+        <option value="Gannavaram">
+        <option value="Tiruvuru">
+      </datalist>
+    </div>
+
+    <div class="field">
+      <label data-en="Job Description (Optional)" data-te="పని వివరణ (ఆప్షనల్)">Job Description</label>
+      <textarea id="uj-desc" rows="3" placeholder="What needs to be done? / పని గురించి క్లుప్తంగా..."></textarea>
+    </div>
+
+    <button class="submit-btn" onclick="submitUrgentJob()">
+      <span data-en="🚀 Post Job Now" data-te="🚀 ఇప్పుడే పోస్ట్ చేయండి">🚀 Post Job Now</span>
+    </button>
+  </div>
+
+  <div class="success-panel" id="successPanel">
+    <div class="big-check">✅</div>
+    <h2 data-en="Job Posted Successfully!" data-te="పని విజయవంతంగా పోస్ట్ చేయబడింది!">Job Posted Successfully!</h2>
+    <p data-en="Workers in your area will contact you via phone or WhatsApp soon."
+       data-te="మీ ప్రాంతంలోని కార్మికులు త్వరలో మిమ్మల్ని సంప్రదిస్తారు.">
+       Workers in your area will contact you via phone or WhatsApp soon.
+    </p>
+    <a href="index.html" class="submit-btn" style="text-decoration:none; margin-top:30px;">
+       <span data-en="Return Home" data-te="హోమ్ పేజీకి వెళ్ళండి">Return Home</span>
+    </a>
+  </div>
+</div>
+
+<script>
+  const API_BASE = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+    ? 'http://localhost:5000'
+    : ''; // Use relative paths for Vercel deployment
+
+  async function submitUrgentJob() {
+    const name = document.getElementById('uj-name').value.trim();
+    const trade = document.getElementById('uj-trade').value.trim();
+    const village = document.getElementById('uj-village').value.trim();
+    const phone = document.getElementById('uj-phone').value.trim();
+    const description = document.getElementById('uj-desc').value.trim();
+
+    if (!name || !trade || !village || !phone) {
+      alert('Please fill in Name, Phone, Trade, and Village.');
+      return;
+    }
+
+    const btn = document.querySelector('.submit-btn');
+    btn.disabled = true;
+    btn.innerText = 'Posting...';
+
+    try {
+      const response = await fetch(`${API_BASE}/api/urgent-jobs`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name, trade, village, phone, description })
+      });
+
+      if (response.ok) {
+        document.getElementById('formCard').style.display = 'none';
+        document.getElementById('successPanel').style.display = 'block';
+      } else {
+        alert('Failed to post job. Please try again.');
+        btn.disabled = false;
+        btn.innerText = '🚀 Post Job Now';
+      }
+    } catch (err) {
+      console.error('Post error:', err);
+      alert('Connection error. Please check your internet.');
+      btn.disabled = false;
+      btn.innerText = '🚀 Post Job Now';
+    }
+  }
+
+  // Language support
+  const lang = localStorage.getItem('gs_lang') || 'en';
+  document.querySelectorAll('[data-' + lang + ']').forEach(el => {
+    el.innerText = el.getAttribute('data-' + lang);
+    if(el.placeholder) el.placeholder = el.getAttribute('data-' + lang);
+  });
+</script>
+
+</body>
+</html>

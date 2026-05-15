@@ -1,0 +1,621 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Book Service - GramaSeva</title>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;600;700;800&family=Fraunces:ital,wght@0,700;0,900;1,400&display=swap"
+    rel="stylesheet">
+  <script src="lang.js"></script>
+  <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+  <style>
+    :root {
+      --clay: #c8502a;
+      --clay-lt: #e8724d;
+      --clay-dk: #8c3318;
+      --earth: #2b1f14;
+      --soil: #4a3422;
+      --sand: #f5ede0;
+      --wheat: #e8d5b7;
+      --leaf: #3d7a3a;
+      --leaf-lt: #5aad56;
+      --sky: #dceef5;
+      --ink: #1a1008;
+      --mist: #f9f4ee;
+      --gold: #d4a017;
+      --r: 16px;
+    }
+
+    *,
+    *::before,
+    *::after {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Sora', sans-serif;
+      background: var(--mist);
+      color: var(--ink);
+    }
+
+    header {
+      background: var(--earth);
+      border-top: 3px solid var(--leaf-lt);
+      border-bottom: 3px solid var(--leaf-lt);
+      padding: 15px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      text-decoration: none;
+    }
+
+    .logo-mark {
+      width: 36px;
+      height: 36px;
+      background: var(--clay);
+      border-radius: 9px;
+      display: grid;
+      place-items: center;
+      font-size: 17px;
+    }
+
+    .logo-text h1 {
+      font-family: 'Fraunces', serif;
+      font-size: 1.25rem;
+      color: var(--sand);
+      font-weight: 900;
+    }
+
+    .logo-text span {
+      font-size: 0.6rem;
+      color: var(--clay-lt);
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      font-weight: 600;
+    }
+
+    nav a {
+      color: rgba(245, 237, 224, 0.7);
+      text-decoration: none;
+      padding: 7px 13px;
+      font-weight: 600;
+      font-size: 0.85rem;
+    }
+
+    nav a:hover {
+      color: var(--sand);
+    }
+
+    .container {
+      max-width: 800px;
+      margin: 40px auto;
+      padding: 0 20px;
+    }
+
+    .booking-card {
+      background: white;
+      border: 2px solid var(--wheat);
+      border-radius: 20px;
+      padding: 30px;
+      box-shadow: 0 10px 30px rgba(74, 52, 34, 0.1);
+    }
+
+    h2 {
+      font-family: 'Fraunces', serif;
+      font-size: 2rem;
+      color: var(--earth);
+      margin-bottom: 20px;
+    }
+
+    .worker-summary {
+      background: var(--sand);
+      padding: 15px;
+      border-radius: 12px;
+      margin-bottom: 25px;
+      display: flex;
+      gap: 15px;
+      align-items: center;
+      border: 1px solid var(--wheat);
+    }
+
+    .worker-summary .icon {
+      font-size: 2.5rem;
+    }
+
+    .worker-summary h3 {
+      font-size: 1.2rem;
+      color: var(--earth);
+      margin-bottom: 5px;
+    }
+
+    .worker-summary p {
+      font-size: 0.85rem;
+      color: var(--soil);
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+    }
+
+    label {
+      display: block;
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--soil);
+      margin-bottom: 8px;
+    }
+
+    input,
+    textarea {
+      width: 100%;
+      padding: 12px;
+      border: 1.5px solid var(--wheat);
+      border-radius: 10px;
+      font-family: 'Sora', sans-serif;
+      font-size: 0.9rem;
+      background: #fff;
+      color: var(--ink);
+    }
+
+    input:focus,
+    textarea:focus {
+      outline: none;
+      border-color: var(--clay);
+      box-shadow: 0 0 0 3px rgba(200, 80, 42, 0.1);
+    }
+
+    .payment-summary {
+      background: rgba(200, 80, 42, 0.05);
+      padding: 15px;
+      border-radius: 10px;
+      border: 1px dashed var(--clay-lt);
+      margin-bottom: 20px;
+    }
+
+    .payment-row {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.9rem;
+      margin-bottom: 5px;
+    }
+
+    .payment-total {
+      display: flex;
+      justify-content: space-between;
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--clay-dk);
+      margin-top: 10px;
+      padding-top: 10px;
+      border-top: 1px solid rgba(200, 80, 42, 0.2);
+    }
+
+    .btn-submit {
+      background: var(--clay);
+      color: white;
+      border: none;
+      padding: 14px 24px;
+      border-radius: 10px;
+      font-weight: 700;
+      font-size: 1rem;
+      width: 100%;
+      cursor: pointer;
+      transition: all 0.25s;
+      font-family: 'Sora', sans-serif;
+    }
+
+    .btn-submit:hover {
+      background: var(--clay-dk);
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(200, 80, 42, 0.3);
+    }
+
+    /* ─── LANGUAGE TOGGLE ─── */
+    .lang-bar {
+      background: var(--clay-dk);
+      text-align: right;
+      padding: 5px 20px;
+      display: flex;
+      justify-content: flex-end;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.72rem;
+      color: rgba(245, 237, 224, 0.7);
+      font-weight: 600;
+    }
+    .lang-toggle {
+      display: flex;
+      background: rgba(0, 0, 0, 0.25);
+      border-radius: 50px;
+      overflow: hidden;
+      border: 1px solid rgba(255, 255, 255, 0.15);
+    }
+    .lang-btn {
+      padding: 3px 10px;
+      font-size: 0.65rem;
+      font-weight: 700;
+      cursor: pointer;
+      border: none;
+      background: transparent;
+      color: rgba(245, 237, 224, 0.6);
+      font-family: 'Sora', sans-serif;
+      transition: all 0.2s;
+    }
+    .lang-btn.active {
+      background: var(--clay);
+      color: white;
+      border-radius: 50px;
+    }
+
+    .btn-location {
+      background: var(--sand);
+      border: 1px solid var(--wheat);
+      color: var(--clay-dk);
+      padding: 4px 10px;
+      border-radius: 6px;
+      font-size: 0.75rem;
+      font-weight: 700;
+      cursor: pointer;
+      font-family: 'Sora', sans-serif;
+      transition: all 0.2s;
+    }
+
+    .btn-location:hover {
+      background: var(--wheat);
+      color: var(--clay);
+    }
+
+    #loading,
+    #error {
+      text-align: center;
+      padding: 20px;
+    }
+
+    #error {
+      color: red;
+    }
+  </style>
+  <script src="lang.js"></script>
+</head>
+
+<body>
+
+  <div class="lang-bar">
+    <span>Language / భాష:</span>
+    <div class="lang-toggle">
+      <button class="lang-btn" id="lang-btn-en" onclick="GS_Lang.set('en')">EN</button>
+      <button class="lang-btn" id="lang-btn-te" onclick="GS_Lang.set('te')">తె</button>
+    </div>
+  </div>
+
+  <header>
+    <a href="index.html" class="logo">
+      <div class="logo-mark">🌿</div>
+      <div class="logo-text">
+        <h1>GramaSeva</h1>
+        <span data-gs-key="nav_subtitle">Village Worker Connect</span>
+      </div>
+    </a>
+    <nav>
+      <a href="index.html" data-gs-key="nav_home">Home</a>
+      <a href="dashboard.html" data-gs-key="nav_dashboard">My Dashboard</a>
+    </nav>
+  </header>
+
+  <div class="container">
+    <div class="booking-card">
+      <div id="loading">Loading worker details...</div>
+      <div id="error" style="display:none;"></div>
+
+      <div id="bookingFormContainer" style="display:none;">
+      <h2 style="margin-bottom:30px; color:var(--earth);" data-gs-key="book_title">Book a Service</h2>
+      
+        <div class="worker-summary" id="workerSummary">
+          <!-- Filled via JS -->
+        </div>
+
+        <form id="bookingForm">
+          <h4 style="color:var(--earth); margin-bottom:15px;" data-gs-key="book_step1">Step 1: Your Details</h4>
+          <div class="form-group">
+            <label data-gs-key="book_your_name">Your Full Name</label>
+            <input type="text" id="customer_name" data-placeholder-en="E.g. Rama Rao" data-placeholder-te="ఉదా: రామారావు" required autocomplete="name">
+          </div>
+
+          <div class="form-group">
+            <label data-gs-key="book_phone">Phone Number</label>
+            <input type="tel" id="customer_phone" data-placeholder-en="10-digit mobile number" data-placeholder-te="10-అంకెల మొబైల్ నంబర్" required pattern="[0-9]{10}"
+              autocomplete="tel">
+          </div>
+
+          <div class="form-group">
+            <label data-gs-key="book_village">Village Name</label>
+            <input type="text" id="customer_village" data-placeholder-en="E.g. Pedavegi" data-placeholder-te="ఉదా: పెదవేగి" required>
+          </div>
+
+          <div class="form-group">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+              <label style="margin-bottom:0;" data-gs-key="book_address">Service Address / Landmark</label>
+              <button type="button" onclick="getLiveLocation('customer_address', this)" class="btn-location" data-gs-key="btn_location">📍 Get Live
+                Location</button>
+            </div>
+            <textarea id="customer_address" required rows="2"
+              data-placeholder-en="Full address and nearest landmark in your village" data-placeholder-te="మీ గ్రామంలోని పూర్తి చిరునామా మరియు సమీప మైలురాయి"></textarea>
+          </div>
+
+          <div class="form-group">
+            <label data-gs-key="book_service_date">Date for Service</label>
+            <input type="date" id="service_date" required>
+          </div>
+
+          <div id="pricingOptionsContainer" style="display:none; margin-top:30px;">
+            <h4 style="color:var(--earth); margin-bottom:12px;" data-gs-key="book_step3">Step 3: Select Pricing Option</h4>
+            <div id="pricingOptionsList" style="display:grid; gap:10px;">
+              <!-- Options will be injected here -->
+            </div>
+            <div id="welfare_fee_display"></div>
+          </div>
+
+          <button type="submit" class="btn-submit" data-gs-key="book_confirm">Confirm Booking</button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const API_BASE = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+      ? 'http://127.0.0.1:5000'
+      : ''; // Relative paths for Vercel
+
+    const params = new URLSearchParams(window.location.search);
+    const workerId = params.get('worker_id');
+    let currentWorker = null;
+
+    if (!workerId) {
+      document.getElementById('loading').style.display = 'none';
+      document.getElementById('error').style.display = 'block';
+      document.getElementById('error').textContent = 'Error: No worker selected. Please go back and select a worker.';
+    } else {
+      // Set min date to today
+      const today = new Date().toISOString().split('T')[0];
+      document.getElementById('service_date').min = today;
+
+      // Fetch worker details
+      fetch(`${API_BASE}/api/workers/${workerId}`)
+        .then(res => {
+          if (!res.ok) throw new Error('Worker not found');
+          return res.json();
+        })
+        .then(worker => {
+          currentWorker = worker;
+          document.getElementById('loading').style.display = 'none';
+          document.getElementById('bookingFormContainer').style.display = 'block';
+
+          let groupMembersHTML = '';
+          if (worker.type === 'group' && worker.group_members) {
+            try {
+              const members = JSON.parse(worker.group_members);
+              if (members.length > 0) {
+                groupMembersHTML = `<div style="margin-top:8px; font-size:0.8rem; color:var(--soil);">
+                <strong>Group Members:</strong> ${members.join(', ')}
+              </div>`;
+              }
+            } catch (e) { }
+          }
+
+          const verifyBadge = worker.is_verified
+            ? `<span style="background:var(--leaf); color:white; padding:3px 10px; border-radius:50px; font-size:0.7rem; font-weight:800; vertical-align:middle; margin-left:10px;">✅ AADHAAR VERIFIED</span>`
+            : `<span style="background:var(--wheat); color:var(--soil); padding:3px 10px; border-radius:50px; font-size:0.7rem; font-weight:800; vertical-align:middle; margin-left:10px;">🛡️ KYC PENDING</span>`;
+
+          const policeBadge = worker.is_verified
+            ? `<span style="background:var(--sky); color:var(--ink); padding:3px 10px; border-radius:50px; font-size:0.7rem; font-weight:800; vertical-align:middle; margin-left:5px;">👮 POLICE VERIFIED</span>`
+            : '';
+
+          const summary = document.getElementById('workerSummary');
+          summary.innerHTML = `
+          <div class="icon">${worker.type === 'group' ? '👥' : '👷'}</div>
+          <div>
+            <h3 style="display:flex; align-items:center; flex-wrap:wrap;">${worker.full_name} (${worker.trade}) ${verifyBadge} ${policeBadge}</h3>
+            <p>📍 ${worker.village} • ⭐ ${worker.rating.toFixed(1)} Rating</p>
+            <div style="margin-top:8px; display:flex; gap:10px; flex-wrap:wrap;">
+               <span style="font-size:0.7rem; background:#fff3cd; color:#856404; padding:2px 8px; border-radius:4px; font-weight:700;">🤝 ESCROW PROTECTED</span>
+               <span style="font-size:0.7rem; background:#d1ecf1; color:#0c5460; padding:2px 8px; border-radius:4px; font-weight:700;">🛡️ INSURANCE ACTIVE</span>
+            </div>
+            ${worker.working_hours ? `<p style="margin-top:6px; font-weight:600; font-size:0.8rem; color:var(--clay-dk);">🕒 Working Hours: ${worker.working_hours}</p>` : ''}
+            ${groupMembersHTML}
+            <div style="margin-top:12px; font-size:0.75rem; color:var(--soil); background:rgba(245,237,224,0.5); padding:8px; border-radius:6px; border-left:3px solid var(--clay);">
+              ℹ️ Funds are held in Escrow and released only when you provide the <strong>Completion OTP</strong> to the worker.
+            </div>
+          </div>
+        `;
+
+          const pricingContainer = document.getElementById('pricingOptionsContainer');
+          const pricingList = document.getElementById('pricingOptionsList');
+          let optionsHTML = '';
+          if (worker.price_1) optionsHTML += `<label style="display:flex; align-items:center; gap:8px; font-weight:600; cursor:pointer;"><input type="radio" name="selected_price" value="${worker.price_1}" required> ${worker.price_1}</label>`;
+          if (worker.price_2) optionsHTML += `<label style="display:flex; align-items:center; gap:8px; font-weight:600; cursor:pointer;"><input type="radio" name="selected_price" value="${worker.price_2}" required> ${worker.price_2}</label>`;
+          if (worker.price_3) optionsHTML += `<label style="display:flex; align-items:center; gap:8px; font-weight:600; cursor:pointer;"><input type="radio" name="selected_price" value="${worker.price_3}" required> ${worker.price_3}</label>`;
+
+          if (optionsHTML) {
+            pricingList.innerHTML = optionsHTML;
+            // Add listener to update welfare fee
+            pricingList.querySelectorAll('input').forEach(input => {
+              input.addEventListener('change', updateWelfareFee);
+            });
+          } else {
+            pricingList.innerHTML = `<label style="display:flex; align-items:center; gap:8px; font-weight:600; cursor:pointer;"><input type="radio" name="selected_price" value="Standard Rate" required checked> Standard Rate (Fixed after visit)</label>`;
+          }
+          pricingContainer.style.display = 'block';
+          updateWelfareFee();
+        })
+        .catch(err => {
+          document.getElementById('loading').style.display = 'none';
+          document.getElementById('error').style.display = 'block';
+          document.getElementById('error').textContent = 'Error loading worker details: ' + err.message;
+        });
+    }
+
+    function updateWelfareFee() {
+      const selected = document.querySelector('input[name="selected_price"]:checked');
+      if (!selected) return;
+
+      let priceVal = 0;
+      const match = selected.value.match(/(\d+)/);
+      if (match) priceVal = parseInt(match[0]);
+
+      const fee = Math.max(2, Math.ceil(priceVal * 0.01)); // 1% or min ₹2
+      document.getElementById('welfare_fee_display').innerHTML = `
+      <div style="margin-top:15px; padding:12px; background:white; border-radius:10px; border:1.5px dashed var(--wheat); font-size:0.85rem;">
+        <div style="display:flex; justify-content:space-between; margin-bottom:5px;">
+          <span>Service Amount:</span>
+          <strong>${selected.value}</strong>
+        </div>
+        <div style="display:flex; justify-content:space-between; color:var(--leaf); font-weight:700;">
+          <span>Worker Welfare Contribution (1%):</span>
+          <span>₹${fee}</span>
+        </div>
+        <p style="font-size:0.7rem; color:var(--soil); margin-top:8px; line-height:1.3;">
+          *This contribution goes directly to the Worker's Social Security fund as per Govt. regulations.
+        </p>
+      </div>
+    `;
+      window.currentWelfareFee = `₹${fee}`;
+    }
+
+    document.getElementById('bookingForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const btn = e.target.querySelector('button');
+      btn.textContent = 'Processing...';
+      btn.disabled = true;
+
+      const custPhone = document.getElementById('customer_phone').value;
+
+      // Prevent booking own service
+      if (currentWorker && custPhone === currentWorker.phone) {
+        alert("You cannot book your own service!");
+        btn.textContent = 'Confirm Booking';
+        btn.disabled = false;
+        return;
+      }
+
+      const selectedPrice = document.querySelector('input[name="selected_price"]:checked')?.value || '₹500';
+      const amountNum = parseFloat(selectedPrice.replace('₹', '').replace(',', ''));
+
+      const village = document.getElementById('customer_village').value;
+      const address = document.getElementById('customer_address').value;
+      const fullAddress = `${village} - ${address}`;
+
+      try {
+        // 1. Get Razorpay Key
+        const keyRes = await fetch(`${API_BASE}/api/payments/key`);
+        const { key } = await keyRes.json();
+
+        // 2. Create Order
+        const orderRes = await fetch(`${API_BASE}/api/payments/create-order`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ amount: amountNum })
+        });
+        const order = await orderRes.json();
+
+        // 3. Open Razorpay Modal
+        const options = {
+          key: key,
+          amount: order.amount,
+          currency: "INR",
+          name: "GramaSeva Marketplace",
+          description: `Booking for ${currentWorker.full_name}`,
+          order_id: order.id,
+          handler: async function (response) {
+            // 4. Verify & Complete Booking
+            const payload = {
+              worker_id: workerId,
+              customer_name: document.getElementById('customer_name').value,
+              customer_phone: document.getElementById('customer_phone').value,
+              customer_address: fullAddress,
+              service_date: document.getElementById('service_date').value,
+              amount: selectedPrice,
+              welfare_fee: window.currentWelfareFee || '₹0',
+              payment_id: response.razorpay_payment_id
+            };
+
+            const res = await fetch(`${API_BASE}/api/book`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(payload)
+            });
+
+            const data = await res.json();
+            if (!res.ok) throw new Error(data.error || 'Failed to book');
+
+            const waMessage = `*Payment Successful! New Booking from GramaSeva!*\n\n*Customer:* ${payload.customer_name}\n*Phone:* ${payload.customer_phone}\n*Village:* ${village}\n*Date:* ${payload.service_date}\n*Price:* ${payload.amount}`;
+            const waUrl = `https://wa.me/91${currentWorker.phone}?text=${encodeURIComponent(waMessage)}`;
+
+            alert('Payment Successful! Booking ID: ' + data.booking_id + '\n\nIMPORTANT: Your Completion OTP is: ' + data.completion_otp + '. Please keep this safe.');
+            window.location.href = `dashboard.html?phone=${encodeURIComponent(payload.customer_phone)}&wa=${encodeURIComponent(waUrl)}`;
+          },
+          prefill: {
+            name: document.getElementById('customer_name').value,
+            contact: custPhone
+          },
+          theme: { color: "#c8502a" },
+          modal: {
+            ondismiss: function () {
+              btn.textContent = 'Confirm Booking';
+              btn.disabled = false;
+            }
+          }
+        };
+
+        const rzp = new Razorpay(options);
+        rzp.open();
+
+      } catch (err) {
+        alert('Payment Error: ' + err.message);
+        btn.textContent = 'Confirm Booking';
+        btn.disabled = false;
+      }
+    });
+
+    function getLiveLocation(targetId, btn) {
+      if (navigator.geolocation) {
+        const originalText = btn.textContent;
+        btn.textContent = '⏳ Locating...';
+        btn.disabled = true;
+        navigator.geolocation.getCurrentPosition(
+          (position) => {
+            const lat = position.coords.latitude;
+            const lng = position.coords.longitude;
+            const mapsLink = `https://maps.google.com/?q=${lat},${lng}`;
+            const target = document.getElementById(targetId);
+            if (target.value) {
+              target.value += '\\nLive Location: ' + mapsLink;
+            } else {
+              target.value = 'Live Location: ' + mapsLink;
+            }
+            btn.textContent = '✅ Location Added';
+            setTimeout(() => { btn.textContent = originalText; btn.disabled = false; }, 3000);
+          },
+          (error) => {
+            alert('Error getting location. Please make sure location access is allowed.');
+            btn.textContent = originalText;
+            btn.disabled = false;
+          }
+        );
+      } else {
+        alert("Geolocation is not supported by your browser.");
+      }
+    }
+  </script>
+</body>
+
+</html>
