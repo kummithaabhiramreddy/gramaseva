@@ -150,6 +150,13 @@
       gap: 8px;
     }
     .mobile-nav a:hover { background: rgba(200,80,42,0.2); color: white; }
+    .mobile-nav .mob-cta {
+      background: var(--clay);
+      color: white !important;
+      justify-content: center;
+      margin-top: 4px;
+    }
+    .mobile-nav .mob-cta:hover { background: var(--clay-lt); }
 
     @media (max-width: 640px) {
       .hamburger { display: flex; }
@@ -391,6 +398,7 @@
     <a href="index.html#trades" onclick="closeMenu()">🔧 Services</a>
     <a href="index.html#workers" onclick="closeMenu()">👷 Find Workers</a>
     <a href="dashboard.html" onclick="closeMenu()">📊 My Dashboard</a>
+    <a href="register.html" class="mob-cta">✍️ Register as Worker</a>
   </div>
 
   <div class="container">
