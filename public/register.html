@@ -1062,6 +1062,46 @@
             </div>
           </div>
 
+          <hr class="form-divider">
+
+          <!-- Bank Details -->
+          <div class="form-section-head">
+            <div class="section-icon">🏦</div>
+            <div>
+              <h4>Bank Details</h4>
+              <span>Required for platform payments & escrow</span>
+            </div>
+          </div>
+          <div class="fields-grid cols2">
+            <div class="field">
+              <label>Account Type <span class="req">*</span></label>
+              <select name="ind-account_type" required>
+                <option value="Savings">Savings Account</option>
+                <option value="Current">Current Account</option>
+              </select>
+            </div>
+            <div class="field">
+              <label>Bank Name <span class="req">*</span></label>
+              <input type="text" name="ind-bank_name" placeholder="e.g. State Bank of India" required>
+            </div>
+          </div>
+          <div class="fields-grid" style="margin-top:14px">
+            <div class="field">
+              <label>Account Holder Name <span class="req">*</span></label>
+              <input type="text" name="ind-account_name" placeholder="Name as per bank passbook" required>
+            </div>
+          </div>
+          <div class="fields-grid cols2" style="margin-top:14px">
+            <div class="field">
+              <label>IFSC Code <span class="req">*</span></label>
+              <input type="text" name="ind-ifsc_code" placeholder="e.g. SBIN0001234" required>
+            </div>
+            <div class="field">
+              <label>Account Number <span class="req">*</span></label>
+              <input type="text" name="ind-account_no" placeholder="Bank Account Number" required>
+            </div>
+          </div>
+
           <div class="submit-row">
             <button type="submit" class="btn-submit">✅ Complete Individual Registration →</button>
             <div class="privacy-note">🔒 Your details are visible only within your village community. GramaSeva does not
@@ -1219,6 +1259,46 @@
             </div>
           </div>
 
+          <hr class="form-divider">
+
+          <!-- Bank Details -->
+          <div class="form-section-head">
+            <div class="section-icon">🏦</div>
+            <div>
+              <h4>Bank Details</h4>
+              <span>Required for platform payments & escrow</span>
+            </div>
+          </div>
+          <div class="fields-grid cols2">
+            <div class="field">
+              <label>Account Type <span class="req">*</span></label>
+              <select name="grp-account_type" required>
+                <option value="Savings">Savings Account</option>
+                <option value="Current">Current Account</option>
+              </select>
+            </div>
+            <div class="field">
+              <label>Bank Name <span class="req">*</span></label>
+              <input type="text" name="grp-bank_name" placeholder="e.g. State Bank of India" required>
+            </div>
+          </div>
+          <div class="fields-grid" style="margin-top:14px">
+            <div class="field">
+              <label>Account Holder Name <span class="req">*</span></label>
+              <input type="text" name="grp-account_name" placeholder="Name as per bank passbook" required>
+            </div>
+          </div>
+          <div class="fields-grid cols2" style="margin-top:14px">
+            <div class="field">
+              <label>IFSC Code <span class="req">*</span></label>
+              <input type="text" name="grp-ifsc_code" placeholder="e.g. SBIN0001234" required>
+            </div>
+            <div class="field">
+              <label>Account Number <span class="req">*</span></label>
+              <input type="text" name="grp-account_no" placeholder="Bank Account Number" required>
+            </div>
+          </div>
+
           <div class="submit-row">
             <button type="submit" class="btn-submit">✅ Complete Group Registration →</button>
             <div class="privacy-note">🔒 Group details are visible only within your village community. GramaSeva does
@@ -1354,7 +1434,12 @@
         experience: e.target.querySelector('input[type="number"]').value,
         availability: e.target.querySelector('select:not(#ind-trade)').value,
         details: e.target.querySelector('textarea').value,
-        type: 'individual'
+        type: 'individual',
+        account_type: e.target.querySelector('select[name="ind-account_type"]').value,
+        bank_name: e.target.querySelector('input[name="ind-bank_name"]').value,
+        account_name: e.target.querySelector('input[name="ind-account_name"]').value,
+        ifsc_code: e.target.querySelector('input[name="ind-ifsc_code"]').value,
+        account_no: e.target.querySelector('input[name="ind-account_no"]').value
       };
 
       try {
@@ -1397,7 +1482,12 @@
         availability: e.target.querySelector('select:not(#grp-trade)').value,
         details: e.target.querySelector('textarea').value,
         type: 'group',
-        members_count: filled.length
+        members_count: filled.length,
+        account_type: e.target.querySelector('select[name="grp-account_type"]').value,
+        bank_name: e.target.querySelector('input[name="grp-bank_name"]').value,
+        account_name: e.target.querySelector('input[name="grp-account_name"]').value,
+        ifsc_code: e.target.querySelector('input[name="grp-ifsc_code"]').value,
+        account_no: e.target.querySelector('input[name="grp-account_no"]').value
       };
 
       try {
