@@ -130,6 +130,74 @@
       color: var(--sand);
     }
 
+    /* Mobile hamburger */
+    .hamburger {
+      display: none;
+      flex-direction: column;
+      justify-content: center;
+      gap: 5px;
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 6px;
+      border-radius: 8px;
+      transition: background 0.2s;
+    }
+    .hamburger:hover { background: rgba(255,255,255,0.1); }
+    .hamburger span {
+      display: block;
+      width: 22px;
+      height: 2px;
+      background: var(--sand);
+      border-radius: 2px;
+      transition: all 0.3s;
+    }
+    .hamburger.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+    .hamburger.open span:nth-child(2) { opacity: 0; }
+    .hamburger.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+
+    /* Mobile nav drawer */
+    .mobile-nav {
+      display: none;
+      flex-direction: column;
+      background: var(--soil);
+      border-top: 1px solid rgba(200,80,42,0.3);
+      padding: 14px 1.25rem;
+      gap: 6px;
+      position: absolute;
+      top: 64px;
+      left: 0; right: 0;
+      z-index: 199;
+      box-shadow: 0 12px 32px rgba(0,0,0,0.4);
+    }
+    .mobile-nav.open { display: flex; }
+    .mobile-nav a {
+      color: rgba(245,237,224,0.85);
+      text-decoration: none;
+      padding: 11px 14px;
+      border-radius: 10px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .mobile-nav a:hover { background: rgba(200,80,42,0.2); color: white; }
+    .mobile-nav .mob-cta {
+      background: var(--clay);
+      color: white !important;
+      justify-content: center;
+      margin-top: 4px;
+    }
+    .mobile-nav .mob-cta:hover { background: var(--clay-lt); }
+
+    @media (max-width: 640px) {
+      .hamburger { display: flex; }
+      .back-link { display: none; }
+      .header-inner { padding: 0 1rem; }
+    }
+
     /* ── ABOUT BANNER ── */
     .about-banner {
       background: linear-gradient(135deg, var(--earth) 0%, var(--soil) 100%);
@@ -862,7 +930,7 @@
   <!-- HEADER -->
   <header>
     <div class="header-inner">
-      <a class="logo">
+      <a href="index.html" class="logo">
         <div class="logo-mark">🌿</div>
         <div class="logo-text">
           <h1>GramaSeva</h1>
@@ -870,6 +938,16 @@
         </div>
       </a>
       <a href="index.html" class="back-link">← Back to Home</a>
+      <button class="hamburger" id="hamburger" aria-label="Menu" onclick="toggleMenu()">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+    <!-- Mobile nav drawer -->
+    <div class="mobile-nav" id="mobileNav">
+      <a href="index.html" onclick="closeMenu()">🏠 Home</a>
+      <a href="index.html#trades" onclick="closeMenu()">🔧 Services</a>
+      <a href="index.html#workers" onclick="closeMenu()">👷 Find Workers</a>
+      <a href="dashboard.html" onclick="closeMenu()">📊 My Dashboard</a>
     </div>
   </header>
 
@@ -1061,6 +1139,31 @@
               <label>Additional Details</label>
               <textarea
                 placeholder="Describe your expertise, tools, previous work, or any other relevant information customers should know…"></textarea>
+            </div>
+          </div>
+
+          <hr class="form-divider">
+
+          <!-- Pricing Options -->
+          <div class="form-section-head">
+            <div class="section-icon">💰</div>
+            <div>
+              <h4>Pricing Options</h4>
+              <span>Provide up to 3 standard prices for your services</span>
+            </div>
+          </div>
+          <div class="fields-grid cols3">
+            <div class="field">
+              <label>Option 1 <span class="req">*</span></label>
+              <input type="text" name="ind-price_1" placeholder="e.g. ₹500/day" required>
+            </div>
+            <div class="field">
+              <label>Option 2</label>
+              <input type="text" name="ind-price_2" placeholder="e.g. ₹150/hour">
+            </div>
+            <div class="field">
+              <label>Option 3</label>
+              <input type="text" name="ind-price_3" placeholder="e.g. Fixed Rate">
             </div>
           </div>
 
@@ -1263,6 +1366,31 @@
 
           <hr class="form-divider">
 
+          <!-- Pricing Options -->
+          <div class="form-section-head">
+            <div class="section-icon">💰</div>
+            <div>
+              <h4>Pricing Options</h4>
+              <span>Provide up to 3 standard prices for the group's services</span>
+            </div>
+          </div>
+          <div class="fields-grid cols3">
+            <div class="field">
+              <label>Option 1 <span class="req">*</span></label>
+              <input type="text" name="grp-price_1" placeholder="e.g. ₹2000/day" required>
+            </div>
+            <div class="field">
+              <label>Option 2</label>
+              <input type="text" name="grp-price_2" placeholder="e.g. ₹500/hour">
+            </div>
+            <div class="field">
+              <label>Option 3</label>
+              <input type="text" name="grp-price_3" placeholder="e.g. Fixed Project Rate">
+            </div>
+          </div>
+
+          <hr class="form-divider">
+
           <!-- Bank Details -->
           <div class="form-section-head">
             <div class="section-icon">🏦</div>
@@ -1336,6 +1464,25 @@
   </div>
 
   <script>
+    /* ── Hamburger menu ── */
+    function toggleMenu() {
+      const btn = document.getElementById('hamburger');
+      const nav = document.getElementById('mobileNav');
+      btn.classList.toggle('open');
+      nav.classList.toggle('open');
+    }
+    function closeMenu() {
+      document.getElementById('hamburger').classList.remove('open');
+      document.getElementById('mobileNav').classList.remove('open');
+    }
+    document.addEventListener('click', e => {
+      const nav = document.getElementById('mobileNav');
+      const btn = document.getElementById('hamburger');
+      if (nav && nav.classList.contains('open') && !nav.contains(e.target) && !btn.contains(e.target)) {
+        closeMenu();
+      }
+    });
+
     /* ── ID counters (simulate auto-increment) ── */
     let indCounter = 1241;
     let grpCounter = 341;
@@ -1441,7 +1588,10 @@
         bank_name: e.target.querySelector('input[name="ind-bank_name"]').value,
         account_name: e.target.querySelector('input[name="ind-account_name"]').value,
         ifsc_code: e.target.querySelector('input[name="ind-ifsc_code"]').value,
-        account_no: e.target.querySelector('input[name="ind-account_no"]').value
+        account_no: e.target.querySelector('input[name="ind-account_no"]').value,
+        price_1: e.target.querySelector('input[name="ind-price_1"]').value,
+        price_2: e.target.querySelector('input[name="ind-price_2"]').value,
+        price_3: e.target.querySelector('input[name="ind-price_3"]').value
       };
 
       try {
@@ -1489,7 +1639,10 @@
         bank_name: e.target.querySelector('input[name="grp-bank_name"]').value,
         account_name: e.target.querySelector('input[name="grp-account_name"]').value,
         ifsc_code: e.target.querySelector('input[name="grp-ifsc_code"]').value,
-        account_no: e.target.querySelector('input[name="grp-account_no"]').value
+        account_no: e.target.querySelector('input[name="grp-account_no"]').value,
+        price_1: e.target.querySelector('input[name="grp-price_1"]').value,
+        price_2: e.target.querySelector('input[name="grp-price_2"]').value,
+        price_3: e.target.querySelector('input[name="grp-price_3"]').value
       };
 
       try {

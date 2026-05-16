@@ -96,6 +96,67 @@
       color: var(--sand);
     }
 
+    /* Mobile hamburger */
+    .hamburger {
+      display: none;
+      flex-direction: column;
+      justify-content: center;
+      gap: 5px;
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 6px;
+      border-radius: 8px;
+      transition: background 0.2s;
+    }
+    .hamburger:hover { background: rgba(255,255,255,0.1); }
+    .hamburger span {
+      display: block;
+      width: 22px;
+      height: 2px;
+      background: var(--sand);
+      border-radius: 2px;
+      transition: all 0.3s;
+    }
+    .hamburger.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+    .hamburger.open span:nth-child(2) { opacity: 0; }
+    .hamburger.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+
+    /* Mobile nav drawer */
+    .mobile-nav {
+      display: none;
+      flex-direction: column;
+      background: var(--soil);
+      border-top: 1px solid rgba(200,80,42,0.3);
+      padding: 14px 1.25rem;
+      gap: 6px;
+      position: absolute;
+      top: 66px;
+      left: 0; right: 0;
+      z-index: 199;
+      box-shadow: 0 12px 32px rgba(0,0,0,0.4);
+    }
+    .mobile-nav.open { display: flex; }
+    .mobile-nav a {
+      color: rgba(245,237,224,0.85);
+      text-decoration: none;
+      padding: 11px 14px;
+      border-radius: 10px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .mobile-nav a:hover { background: rgba(200,80,42,0.2); color: white; }
+
+    @media (max-width: 640px) {
+      .hamburger { display: flex; }
+      nav { display: none; }
+      header { padding: 12px 1rem; }
+    }
+
     .container {
       max-width: 800px;
       margin: 40px auto;
@@ -319,7 +380,18 @@
       <a href="index.html" data-gs-key="nav_home">Home</a>
       <a href="dashboard.html" data-gs-key="nav_dashboard">My Dashboard</a>
     </nav>
+    <button class="hamburger" id="hamburger" aria-label="Menu" onclick="toggleMenu()">
+      <span></span><span></span><span></span>
+    </button>
   </header>
+
+  <!-- Mobile nav drawer -->
+  <div class="mobile-nav" id="mobileNav">
+    <a href="index.html" onclick="closeMenu()">🏠 Home</a>
+    <a href="index.html#trades" onclick="closeMenu()">🔧 Services</a>
+    <a href="index.html#workers" onclick="closeMenu()">👷 Find Workers</a>
+    <a href="dashboard.html" onclick="closeMenu()">📊 My Dashboard</a>
+  </div>
 
   <div class="container">
     <div class="booking-card">
@@ -381,6 +453,25 @@
   </div>
 
   <script>
+    /* ── Hamburger menu ── */
+    function toggleMenu() {
+      const btn = document.getElementById('hamburger');
+      const nav = document.getElementById('mobileNav');
+      btn.classList.toggle('open');
+      nav.classList.toggle('open');
+    }
+    function closeMenu() {
+      document.getElementById('hamburger').classList.remove('open');
+      document.getElementById('mobileNav').classList.remove('open');
+    }
+    document.addEventListener('click', e => {
+      const nav = document.getElementById('mobileNav');
+      const btn = document.getElementById('hamburger');
+      if (nav && nav.classList.contains('open') && !nav.contains(e.target) && !btn.contains(e.target)) {
+        closeMenu();
+      }
+    });
+
     const API_BASE = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
       ? 'http://127.0.0.1:5000'
       : ''; // Relative paths for Vercel
