@@ -1134,7 +1134,7 @@
     const grid = document.getElementById('workersGrid');
     grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:40px;color:var(--soil);">Searching...</div>';
     try {
-      const url = new URL('/api/workers');
+      const url = new URL('/api/workers', window.location.origin);
       if (s) url.searchParams.append('search', s);
       if (t) url.searchParams.append('trade', t);
       if (v) url.searchParams.append('village', v);
