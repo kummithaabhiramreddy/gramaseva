@@ -1162,6 +1162,10 @@
             <div style="text-align:right;">
                <div style="font-size:0.75rem; color:var(--soil); font-weight:700; text-transform:uppercase; margin-bottom:5px;">Reg Type</div>
                <span class="pill" style="background:var(--earth); color:var(--sand); font-weight:900; margin-right:0;">${w.type.toUpperCase()}</span>
+               <div style="margin-top:15px;">
+                 <div style="font-size:0.65rem; color:var(--clay-dk); font-weight:800;">WALLET BALANCE</div>
+                 <div style="font-size:1.4rem; font-weight:900; color:var(--leaf);">₹${Math.floor(w.wallet_balance || 0).toLocaleString()}</div>
+               </div>
             </div>
           </div>
           
@@ -1511,7 +1515,7 @@
       if (!otp) return;
 
       try {
-        const res = await fetch(`${API_BASE}/api/bookings/complete`, {
+        const res = await fetch(`${API_BASE}/api/worker/verify-code`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ booking_id: bookingId, otp: otp })
@@ -1526,6 +1530,25 @@
       } catch (e) { alert("Failed to complete job."); }
     }
 
+    async function cancelBooking(bookingId) {
+      if (!confirm("Are you sure you want to cancel this booking?")) return;
+      
+      try {
+        const res = await fetch(`${API_BASE}/api/user/cancel-booking`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ booking_id: bookingId })
+        });
+        const data = await res.json();
+        if (res.ok) {
+          alert("Booking cancelled successfully.");
+          location.reload();
+        } else {
+          alert("Error: " + data.error);
+        }
+      } catch (e) { alert("Failed to cancel booking."); }
+    }
+
     function renderGrid(gridId, data, viewType) {
       const grid = document.getElementById(gridId);
       grid.innerHTML = data.map(b => {
@@ -1534,6 +1557,11 @@
         const statusClass = b.status === 'completed' ? 'status-completed' : (b.status === 'cancelled' ? 'status-cancelled' : 'status-pending');
 
         if (viewType === 'customer') {
+          const createdAt = new Date(b.created_at);
+          const now = new Date();
+          const diffMins = (now - createdAt) / 60000;
+          const canCancel = diffMins < 30 && b.status === 'pending';
+
           return `
             <div class="worker-card" style="border-left: 5px solid var(--clay-lt);">
               <div class="bk-header">
@@ -1550,13 +1578,14 @@
               <div style="padding:15px; background:var(--mist); border-radius:12px; border:1px solid var(--wheat);">
                 <p>📍 Service Location: <strong>${b.customer_address.split(' - ')[0]}</strong></p>
                 <p>📞 Worker Phone: <strong style="color:var(--clay);">${b.worker_phone}</strong></p>
-                <p style="margin-top:8px; font-size:0.9rem; font-weight:700; color:var(--soil);">Amount Paid (Escrow): ${b.amount}</p>
+                <p style="margin-top:8px; font-size:0.9rem; font-weight:700; color:var(--soil);">Amount: ${b.amount} (${b.payment_type || 'online'})</p>
               </div>
               ${b.status === 'pending' ? `
                 <div style="margin-top:12px; padding:10px; background:#fff3cd; border:1px solid #ffeeba; border-radius:8px; text-align:center;">
-                  <p style="font-size:0.75rem; color:#856404; font-weight:700;">🔑 COMPLETION OTP: <span style="font-size:1.1rem; letter-spacing:2px; margin-left:5px;">${b.completion_otp || '****'}</span></p>
+                  <p style="font-size:0.75rem; color:#856404; font-weight:700;">🔑 COMPLETION CODE: <span style="font-size:1.1rem; letter-spacing:2px; margin-left:5px;">${b.completion_otp || '****'}</span></p>
                   <p style="font-size:0.65rem; color:#856404; margin-top:4px;">Give this code to the worker ONLY after work is finished.</p>
                 </div>
+                ${canCancel ? `<button onclick="cancelBooking('${b.booking_id}')" style="margin-top:10px; background:#f8d7da; color:#721c24; border:none; padding:8px; border-radius:6px; width:100%; font-weight:700; cursor:pointer;">❌ Cancel Booking (Within 30m)</button>` : ''}
               ` : ''}
             </div>`;
         } else {
@@ -1590,6 +1619,7 @@
                 <div>
                   <span style="color:var(--soil); font-weight:600;">💰 Service:</span>
                   <strong style="color:var(--clay-dk); font-size:1.1rem;">${b.amount}</strong>
+                  <span style="font-size:0.7rem; opacity:0.6;">(${b.payment_type})</span>
                 </div>
                 <div style="background:rgba(61,122,58,0.1); padding:4px 10px; border-radius:6px; color:var(--leaf); font-size:0.85rem; font-weight:700;">
                   Welfare Contribution: ${b.welfare_fee || '₹5'}
@@ -1598,8 +1628,10 @@
 
               <div style="margin-top:15px; display:flex; gap:10px;">
                 ${b.status === 'pending'
-              ? `<button onclick="completeJob('${b.booking_id}')" class="btn-main" style="flex:1; background:var(--leaf);">✅ Mark Completed & Release Funds</button>`
-              : `<div style="flex:1; background:var(--sand); color:var(--soil); padding:12px; border-radius:10px; text-align:center; font-weight:700;">✨ Job Finished Successfully</div>`
+              ? `<button onclick="completeJob('${b.booking_id}')" class="btn-main" style="flex:1; background:var(--leaf);">✅ Enter Completion Code to Get Paid</button>`
+              : (b.status === 'cancelled' 
+                 ? `<div style="flex:1; background:#f8d7da; color:#721c24; padding:12px; border-radius:10px; text-align:center; font-weight:700;">❌ Job Cancelled by Customer</div>`
+                 : `<div style="flex:1; background:var(--sand); color:var(--soil); padding:12px; border-radius:10px; text-align:center; font-weight:700;">✨ Job Finished Successfully</div>`)
             }
                 <a href="tel:${b.customer_phone}" class="btn-main" style="width:auto; background:var(--earth);">📞 Call Customer</a>
               </div>

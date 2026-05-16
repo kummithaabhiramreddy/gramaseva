@@ -131,8 +131,15 @@ const initDb = async () => {
             ADD COLUMN IF NOT EXISTS completion_otp TEXT,
             ADD COLUMN IF NOT EXISTS is_escrow_released BOOLEAN DEFAULT FALSE,
             ADD COLUMN IF NOT EXISTS payment_id TEXT,
+            ADD COLUMN IF NOT EXISTS payment_type TEXT DEFAULT 'online',
+            ADD COLUMN IF NOT EXISTS payout_status TEXT DEFAULT 'pending',
             ALTER COLUMN amount TYPE TEXT;
         `).catch(e => console.log("Bookings alter error ignored"));
+
+        await pool.query(`
+            ALTER TABLE workers 
+            ADD COLUMN IF NOT EXISTS wallet_balance NUMERIC DEFAULT 0;
+        `).catch(e => console.log("Workers wallet alter error ignored"));
 
     } catch (err) {
         console.error("❌ Error initializing database:", err.message);
@@ -450,23 +457,112 @@ app.get('/api/next-id', async (req, res) => {
 
 // Create Booking
 app.post('/api/book', async (req, res) => {
-    const { worker_id, customer_name, customer_phone, customer_address, service_date, service_time, amount, welfare_fee, payment_id } = req.body;
+    const { worker_id, customer_name, customer_phone, customer_address, service_date, service_time, amount, welfare_fee, payment_id, payment_type } = req.body;
     const booking_id = 'BKG-' + Date.now().toString().slice(-6) + Math.floor(Math.random() * 1000);
     const completion_otp = Math.floor(1000 + Math.random() * 9000).toString();
 
     const query = `
         INSERT INTO bookings (
-            booking_id, worker_id, customer_name, customer_phone, customer_address, service_date, service_time, amount, welfare_fee, completion_otp, payment_id, payment_status
-        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
+            booking_id, worker_id, customer_name, customer_phone, customer_address, service_date, service_time, amount, welfare_fee, completion_otp, payment_id, payment_status, payment_type
+        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)
         RETURNING *;
     `;
     const values = [
-        booking_id, worker_id, customer_name, customer_phone, customer_address, service_date, service_time || 'Any Time', amount || '₹500', welfare_fee || '₹0', completion_otp, payment_id || null, payment_id ? 'paid' : 'pending'
+        booking_id, worker_id, customer_name, customer_phone, customer_address, service_date, service_time || 'Any Time', amount || '₹500', welfare_fee || '₹0', completion_otp, payment_id || null, (payment_id || payment_type === 'cash') ? 'paid' : 'pending', payment_type || 'online'
     ];
 
     try {
         const result = await pool.query(query, values);
         res.status(201).json(result.rows[0]);
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+// Verify Completion Code (Worker)
+app.post('/api/worker/verify-code', async (req, res) => {
+    const { booking_id, otp } = req.body;
+    try {
+        const bookingRes = await pool.query('SELECT * FROM bookings WHERE booking_id = $1', [booking_id]);
+        if (bookingRes.rows.length === 0) return res.status(404).json({ error: "Booking not found" });
+
+        const booking = bookingRes.rows[0];
+        if (booking.status === 'completed') return res.status(400).json({ error: "Job already completed" });
+        if (booking.status === 'cancelled') return res.status(400).json({ error: "Job was cancelled" });
+
+        if (booking.completion_otp === otp) {
+            // Mark as completed and release funds
+            await pool.query(
+                "UPDATE bookings SET status = 'completed', job_completed_at = NOW(), payout_status = 'completed' WHERE booking_id = $1",
+                [booking_id]
+            );
+
+            // Update worker wallet (simulated bank transfer)
+            const amountNum = parseFloat(booking.amount.replace(/[^0-9.]/g, '')) || 0;
+            const payoutAmount = amountNum * 0.99; // 99% to worker
+
+            await pool.query(
+                "UPDATE workers SET wallet_balance = wallet_balance + $1 WHERE worker_id = $2",
+                [payoutAmount, booking.worker_id]
+            );
+
+            res.json({ success: true, message: "Code verified! Payout sent to your bank/wallet." });
+        } else {
+            res.status(400).json({ error: "Incorrect code. Please check with customer." });
+        }
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+// Cancel Booking (Customer)
+app.post('/api/user/cancel-booking', async (req, res) => {
+    const { booking_id } = req.body;
+    try {
+        const bookingRes = await pool.query('SELECT * FROM bookings WHERE booking_id = $1', [booking_id]);
+        if (bookingRes.rows.length === 0) return res.status(404).json({ error: "Booking not found" });
+
+        const booking = bookingRes.rows[0];
+        const now = new Date();
+        const created = new Date(booking.created_at);
+        const diffMinutes = (now - created) / (1000 * 60);
+
+        if (diffMinutes > 30) {
+            return res.status(400).json({ error: "Cancellation period (30 mins) has expired." });
+        }
+
+        await pool.query("UPDATE bookings SET status = 'cancelled' WHERE booking_id = $1", [booking_id]);
+        res.json({ success: true, message: "Booking cancelled successfully." });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+// Auto-payout check (simulated cron - can be called by admin or periodic tasks)
+app.get('/api/admin/trigger-auto-payout', async (req, res) => {
+    try {
+        // Find bookings from TODAY that are still pending/confirmed but not completed
+        // The user said: "if not enter code at 11:59 pm at end of that day then amount will also send that worker bank"
+        const result = await pool.query(`
+            UPDATE bookings 
+            SET status = 'completed', payout_status = 'auto_completed', job_completed_at = NOW()
+            WHERE status = 'pending' 
+            AND created_at < date_trunc('day', NOW()) + interval '1 day' - interval '1 minute'
+            AND payment_status = 'paid'
+            RETURNING *
+        `);
+
+        // Update wallets for auto-completed jobs
+        for (const booking of result.rows) {
+            const amountNum = parseFloat(booking.amount.replace(/[^0-9.]/g, '')) || 0;
+            const payoutAmount = amountNum * 0.99;
+            await pool.query(
+                "UPDATE workers SET wallet_balance = wallet_balance + $1 WHERE worker_id = $2",
+                [payoutAmount, booking.worker_id]
+            );
+        }
+
+        res.json({ success: true, auto_completed_count: result.rows.length });
     } catch (err) {
         res.status(500).json({ error: err.message });
     }

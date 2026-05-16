@@ -457,6 +457,26 @@
             </div>
           </div>
 
+          <div class="form-group" style="margin-top:20px;">
+            <label style="font-weight:700; color:var(--clay-dk);">Payment Method</label>
+            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px; margin-top:10px;">
+              <label style="display:flex; align-items:center; gap:10px; padding:15px; border:2px solid var(--wheat); border-radius:12px; cursor:pointer; background:white;" id="label-online">
+                <input type="radio" name="payment_type" value="online" checked onchange="togglePaymentUI()">
+                <div>
+                  <div style="font-weight:700; font-size:0.9rem;">Online (Navi/UPI)</div>
+                  <div style="font-size:0.7rem; color:var(--soil);">Pay now via any app</div>
+                </div>
+              </label>
+              <label style="display:flex; align-items:center; gap:10px; padding:15px; border:2px solid var(--wheat); border-radius:12px; cursor:pointer; background:white;" id="label-cash">
+                <input type="radio" name="payment_type" value="cash" onchange="togglePaymentUI()">
+                <div>
+                  <div style="font-weight:700; font-size:0.9rem;">Cash on Worker</div>
+                  <div style="font-size:0.7rem; color:var(--soil);">Pay after work</div>
+                </div>
+              </label>
+            </div>
+          </div>
+
           <div id="pricingOptionsContainer" style="display:none; margin-top:30px;">
             <h4 style="color:var(--earth); margin-bottom:12px;" data-gs-key="book_step3">Step 3: Select Pricing Option</h4>
             <div id="pricingOptionsList" style="display:grid; gap:10px;">
@@ -583,134 +603,129 @@
         });
     }
 
-    function updateWelfareFee() {
-      const selected = document.querySelector('input[name="selected_price"]:checked');
-      if (!selected) return;
-
-      let priceVal = 0;
-      const match = selected.value.match(/(\d+)/);
-      if (match) priceVal = parseInt(match[0]);
-
-      const fee = Math.max(2, Math.ceil(priceVal * 0.01)); // 1% or min ₹2
-      document.getElementById('welfare_fee_display').innerHTML = `
-      <div style="margin-top:15px; padding:12px; background:white; border-radius:10px; border:1.5px dashed var(--wheat); font-size:0.85rem;">
-        <div style="display:flex; justify-content:space-between; margin-bottom:5px;">
-          <span>Service Amount:</span>
-          <strong>${selected.value}</strong>
-        </div>
-        <div style="display:flex; justify-content:space-between; color:var(--leaf); font-weight:700;">
-          <span>Worker Welfare Contribution (1%):</span>
-          <span>₹${fee}</span>
-        </div>
-        <p style="font-size:0.7rem; color:var(--soil); margin-top:8px; line-height:1.3;">
-          *This contribution goes directly to the Worker's Social Security fund as per Govt. regulations.
-        </p>
-      </div>
-    `;
-      window.currentWelfareFee = `₹${fee}`;
+    function togglePaymentUI() {
+      const isOnline = document.querySelector('input[name="payment_type"]:checked').value === 'online';
+      document.getElementById('label-online').style.borderColor = isOnline ? 'var(--clay)' : 'var(--wheat)';
+      document.getElementById('label-online').style.background = isOnline ? 'rgba(200,80,42,0.05)' : 'white';
+      document.getElementById('label-cash').style.borderColor = !isOnline ? 'var(--clay)' : 'var(--wheat)';
+      document.getElementById('label-cash').style.background = !isOnline ? 'rgba(200,80,42,0.05)' : 'white';
+      
+      const btn = document.querySelector('.btn-submit');
+      if (isOnline) {
+        btn.textContent = 'Pay & Confirm Booking';
+      } else {
+        btn.textContent = 'Book with Cash Payment';
+      }
     }
 
     document.getElementById('bookingForm').addEventListener('submit', async (e) => {
       e.preventDefault();
       const btn = e.target.querySelector('button');
+      const originalBtnText = btn.textContent;
       btn.textContent = 'Processing...';
       btn.disabled = true;
 
       const custPhone = document.getElementById('customer_phone').value;
+      const paymentType = document.querySelector('input[name="payment_type"]:checked').value;
 
       // Prevent booking own service
       if (currentWorker && custPhone === currentWorker.phone) {
         alert("You cannot book your own service!");
-        btn.textContent = 'Confirm Booking';
+        btn.textContent = originalBtnText;
         btn.disabled = false;
         return;
       }
 
       const selectedPrice = document.querySelector('input[name="selected_price"]:checked')?.value || '₹500';
-      const amountNum = parseFloat(selectedPrice.replace('₹', '').replace(',', ''));
+      const amountNum = parseFloat(selectedPrice.replace('₹', '').replace(',', '')) || 500;
 
       const village = document.getElementById('customer_village').value;
       const address = document.getElementById('customer_address').value;
       const fullAddress = `${village} - ${address}`;
 
+      const bookingPayload = {
+        worker_id: workerId,
+        customer_name: document.getElementById('customer_name').value,
+        customer_phone: custPhone,
+        customer_address: fullAddress,
+        service_date: document.getElementById('service_date').value,
+        service_time: document.getElementById('service_time').value,
+        amount: selectedPrice,
+        welfare_fee: window.currentWelfareFee || '₹0',
+        payment_type: paymentType
+      };
+
       try {
-        // 1. Get Razorpay Key
-        const keyRes = await fetch(`${API_BASE}/api/payments/key`);
-        const keyData = await keyRes.json();
-        
-        if (!keyRes.ok) {
-          throw new Error(keyData.message || keyData.error || 'Could not fetch Razorpay Key');
-        }
-        
-        const key = keyData.key;
+        if (paymentType === 'online') {
+          // 1. Get Razorpay Key
+          const keyRes = await fetch(`${API_BASE}/api/payments/key`);
+          const keyData = await keyRes.json();
+          if (!keyRes.ok) throw new Error(keyData.message || keyData.error || 'Could not fetch Razorpay Key');
+          const key = keyData.key;
 
-        // 2. Create Order
-        const orderRes = await fetch(`${API_BASE}/api/payments/create-order`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ amount: amountNum })
-        });
-        const order = await orderRes.json();
+          // 2. Create Order
+          const orderRes = await fetch(`${API_BASE}/api/payments/create-order`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ amount: amountNum })
+          });
+          const order = await orderRes.json();
 
-        // 3. Open Razorpay Modal
-        const options = {
-          key: key,
-          amount: order.amount,
-          currency: "INR",
-          name: "GramaSeva Marketplace",
-          description: `Booking for ${currentWorker.full_name}`,
-          order_id: order.id,
-          handler: async function (response) {
-            // 4. Verify & Complete Booking
-            const payload = {
-              worker_id: workerId,
-              customer_name: document.getElementById('customer_name').value,
-              customer_phone: document.getElementById('customer_phone').value,
-              customer_address: fullAddress,
-              service_date: document.getElementById('service_date').value,
-              service_time: document.getElementById('service_time').value,
-              amount: selectedPrice,
-              welfare_fee: window.currentWelfareFee || '₹0',
-              payment_id: response.razorpay_payment_id
-            };
-
-            const res = await fetch(`${API_BASE}/api/book`, {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify(payload)
-            });
-
-            const data = await res.json();
-            if (!res.ok) throw new Error(data.error || 'Failed to book');
-
-            const waMessage = `*Payment Successful! New Booking from GramaSeva!*\n\n*Customer:* ${payload.customer_name}\n*Phone:* ${payload.customer_phone}\n*Village:* ${village}\n*Date:* ${payload.service_date}\n*Time:* ${payload.service_time}\n*Price:* ${payload.amount}`;
-            const waUrl = `https://wa.me/91${currentWorker.phone}?text=${encodeURIComponent(waMessage)}`;
-
-            alert('Payment Successful! Booking ID: ' + data.booking_id + '\n\nIMPORTANT: Your Completion OTP is: ' + data.completion_otp + '. Please keep this safe.');
-            window.location.href = `dashboard.html?phone=${encodeURIComponent(payload.customer_phone)}&wa=${encodeURIComponent(waUrl)}`;
-          },
-          prefill: {
-            name: document.getElementById('customer_name').value,
-            contact: custPhone
-          },
-          theme: { color: "#c8502a" },
-          modal: {
-            ondismiss: function () {
-              btn.textContent = 'Confirm Booking';
-              btn.disabled = false;
+          // 3. Open Razorpay Modal
+          const options = {
+            key: key,
+            amount: order.amount,
+            currency: "INR",
+            name: "GramaSeva Marketplace",
+            description: `Booking for ${currentWorker.full_name}`,
+            order_id: order.id,
+            handler: async function (response) {
+              bookingPayload.payment_id = response.razorpay_payment_id;
+              await completeBooking(bookingPayload);
+            },
+            prefill: {
+              name: bookingPayload.customer_name,
+              contact: custPhone
+            },
+            theme: { color: "#c8502a" },
+            modal: {
+              ondismiss: function () {
+                btn.textContent = originalBtnText;
+                btn.disabled = false;
+              }
             }
-          }
-        };
+          };
 
-        const rzp = new Razorpay(options);
-        rzp.open();
-
+          const rzp = new Razorpay(options);
+          rzp.open();
+        } else {
+          // Cash Booking
+          await completeBooking(bookingPayload);
+        }
       } catch (err) {
-        alert('Payment Error: ' + err.message);
-        btn.textContent = 'Confirm Booking';
+        alert('Error: ' + err.message);
+        btn.textContent = originalBtnText;
         btn.disabled = false;
       }
     });
+
+    async function completeBooking(payload) {
+      const res = await fetch(`${API_BASE}/api/book`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Failed to book');
+
+      // WhatsApp Message
+      const waMessage = `*New Booking from GramaSeva!*\n\n*ID:* ${data.booking_id}\n*Customer:* ${payload.customer_name}\n*Village:* ${payload.customer_address.split(' - ')[0]}\n*Date:* ${payload.service_date}\n*Amount:* ${payload.amount}\n*Payment:* ${payload.payment_type.toUpperCase()}\n\n_Please wait for customer to provide Completion Code after work._`;
+      const waUrl = `https://wa.me/91${currentWorker.phone}?text=${encodeURIComponent(waMessage)}`;
+
+      alert('Booking Confirmed! ID: ' + data.booking_id + '\n\nIMPORTANT: Provide the Completion Code (' + data.completion_otp + ') to the worker ONLY after the job is finished.');
+      window.location.href = `dashboard.html?phone=${encodeURIComponent(payload.customer_phone)}&wa=${encodeURIComponent(waUrl)}`;
+    }
 
     function getLiveLocation(targetId, btn) {
       if (navigator.geolocation) {
