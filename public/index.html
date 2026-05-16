@@ -912,18 +912,18 @@
       <p class="section-sub">Browse workers by their trade — all from your own village community</p>
     </div>
     <div class="trades-grid fade-up">
-      <a href="#workers" class="trade-card"><span class="trade-icon-wrap">🌾</span><div class="trade-name">Agriculture</div><div class="trade-count">280 workers</div></a>
-      <a href="#workers" class="trade-card"><span class="trade-icon-wrap">🔧</span><div class="trade-name">Plumber</div><div class="trade-count">96 workers</div></a>
-      <a href="#workers" class="trade-card"><span class="trade-icon-wrap">🏗️</span><div class="trade-name">Builder</div><div class="trade-count">154 workers</div></a>
-      <a href="#workers" class="trade-card"><span class="trade-icon-wrap">⚡</span><div class="trade-name">Electrician</div><div class="trade-count">88 workers</div></a>
-      <a href="#workers" class="trade-card"><span class="trade-icon-wrap">🪵</span><div class="trade-name">Carpenter</div><div class="trade-count">72 workers</div></a>
-      <a href="#workers" class="trade-card"><span class="trade-icon-wrap">🎨</span><div class="trade-name">Painter</div><div class="trade-count">64 workers</div></a>
-      <a href="#workers" class="trade-card"><span class="trade-icon-wrap">🧰</span><div class="trade-name">Mechanic</div><div class="trade-count">45 workers</div></a>
-      <a href="#workers" class="trade-card"><span class="trade-icon-wrap">🐄</span><div class="trade-name">Animal Husbandry</div><div class="trade-count">110 workers</div></a>
-      <a href="#workers" class="trade-card"><span class="trade-icon-wrap">🧹</span><div class="trade-name">Housekeeping</div><div class="trade-count">130 workers</div></a>
-      <a href="#workers" class="trade-card"><span class="trade-icon-wrap">🍳</span><div class="trade-name">Cooking</div><div class="trade-count">58 workers</div></a>
-      <a href="#workers" class="trade-card"><span class="trade-icon-wrap">🌊</span><div class="trade-name">Irrigation</div><div class="trade-count">42 workers</div></a>
-      <a href="#workers" class="trade-card"><span class="trade-icon-wrap">🪴</span><div class="trade-name">Gardening</div><div class="trade-count">38 workers</div></a>
+      <a href="#workers" class="trade-card"><span class="trade-icon-wrap">🌾</span><div class="trade-name">Agriculture</div><div class="trade-count" id="count-Agriculture">0 workers</div></a>
+      <a href="#workers" class="trade-card"><span class="trade-icon-wrap">🔧</span><div class="trade-name">Plumber</div><div class="trade-count" id="count-Plumber">0 workers</div></a>
+      <a href="#workers" class="trade-card"><span class="trade-icon-wrap">🏗️</span><div class="trade-name">Builder</div><div class="trade-count" id="count-Builder">0 workers</div></a>
+      <a href="#workers" class="trade-card"><span class="trade-icon-wrap">⚡</span><div class="trade-name">Electrician</div><div class="trade-count" id="count-Electrician">0 workers</div></a>
+      <a href="#workers" class="trade-card"><span class="trade-icon-wrap">🪵</span><div class="trade-name">Carpenter</div><div class="trade-count" id="count-Carpenter">0 workers</div></a>
+      <a href="#workers" class="trade-card"><span class="trade-icon-wrap">🎨</span><div class="trade-name">Painter</div><div class="trade-count" id="count-Painter">0 workers</div></a>
+      <a href="#workers" class="trade-card"><span class="trade-icon-wrap">🧰</span><div class="trade-name">Mechanic</div><div class="trade-count" id="count-Mechanic">0 workers</div></a>
+      <a href="#workers" class="trade-card"><span class="trade-icon-wrap">🐄</span><div class="trade-name">Animal Husbandry</div><div class="trade-count" id="count-Animal-Husbandry">0 workers</div></a>
+      <a href="#workers" class="trade-card"><span class="trade-icon-wrap">🧹</span><div class="trade-name">Housekeeping</div><div class="trade-count" id="count-Housekeeping">0 workers</div></a>
+      <a href="#workers" class="trade-card"><span class="trade-icon-wrap">🍳</span><div class="trade-name">Cooking</div><div class="trade-count" id="count-Cooking">0 workers</div></a>
+      <a href="#workers" class="trade-card"><span class="trade-icon-wrap">🌊</span><div class="trade-name">Irrigation</div><div class="trade-count" id="count-Irrigation">0 workers</div></a>
+      <a href="#workers" class="trade-card"><span class="trade-icon-wrap">🪴</span><div class="trade-name">Gardening</div><div class="trade-count" id="count-Gardening">0 workers</div></a>
     </div>
   </div>
 </div>
@@ -1121,6 +1121,15 @@
       document.getElementById('mstat-villages').textContent = v;
       document.getElementById('mstat-groups').textContent = g;
       document.getElementById('mstat-jobs').textContent = j;
+
+      if (data.tradeCounts) {
+        for (let [trade, count] of Object.entries(data.tradeCounts)) {
+          // Normalize trade name for ID (e.g., 'Animal Husbandry' -> 'Animal-Husbandry')
+          const id = `count-${trade.replace(/\s+/g, '-')}`;
+          const el = document.getElementById(id);
+          if (el) el.textContent = `${count} workers`;
+        }
+      }
     } catch (err) {
       console.error("Error loading stats:", err);
     }

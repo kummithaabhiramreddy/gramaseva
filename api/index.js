@@ -298,6 +298,12 @@ app.get('/api/stats', async (req, res) => {
         const finance = financeRes.rows[0] || {};
         const totalBookingsRes = await pool.query("SELECT COUNT(*) FROM bookings");
 
+        const tradeCountsRes = await pool.query('SELECT trade, COUNT(*) as count FROM workers GROUP BY trade');
+        const tradeCounts = {};
+        tradeCountsRes.rows.forEach(row => {
+            tradeCounts[row.trade] = parseInt(row.count);
+        });
+
         res.json({
             registeredWorkers: parseInt(totalWorkers.rows[0].total_count) || 0,
             villagesCovered: parseInt(totalVillages.rows[0].count) || 0,
@@ -306,7 +312,8 @@ app.get('/api/stats', async (req, res) => {
             totalBookings: parseInt(totalBookingsRes.rows[0].count) || 0,
             escrowPending: parseFloat(finance.escrow_pending) || 0,
             fundsReleased: parseFloat(finance.funds_released) || 0,
-            totalWelfare: parseFloat(finance.total_welfare) || 0
+            totalWelfare: parseFloat(finance.total_welfare) || 0,
+            tradeCounts: tradeCounts
         });
     } catch (err) {
         res.status(500).json({ error: err.message });
