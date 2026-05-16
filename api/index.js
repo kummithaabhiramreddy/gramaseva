@@ -118,7 +118,9 @@ const initDb = async () => {
             ADD COLUMN IF NOT EXISTS ifsc_code TEXT,
             ADD COLUMN IF NOT EXISTS bank_name TEXT,
             ADD COLUMN IF NOT EXISTS account_name TEXT,
-            ADD COLUMN IF NOT EXISTS is_verified BOOLEAN DEFAULT FALSE;
+            ADD COLUMN IF NOT EXISTS is_verified BOOLEAN DEFAULT FALSE,
+            ADD COLUMN IF NOT EXISTS latitude TEXT,
+            ADD COLUMN IF NOT EXISTS longitude TEXT;
         `).catch(e => console.log("Workers alter error ignored"));
         
         await pool.query(`
@@ -205,8 +207,9 @@ app.post('/api/register', async (req, res) => {
             landmark, experience, availability, details, type, 
             leader_name, members_count, price_1, price_2, price_3, 
             working_hours, group_members, aadhaar_no, eshram_uan,
-            account_type, account_no, ifsc_code, bank_name, account_name
-        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23, $24, $25)
+            account_type, account_no, ifsc_code, bank_name, account_name,
+            latitude, longitude
+        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23, $24, $25, $26, $27)
         RETURNING *;
     `;
     const {
@@ -214,7 +217,8 @@ app.post('/api/register', async (req, res) => {
         landmark, experience, availability, details, type,
         leader_name, members_count, price_1, price_2, price_3,
         working_hours, group_members, aadhaar_no, eshram_uan,
-        account_type, account_no, ifsc_code, bank_name, account_name
+        account_type, account_no, ifsc_code, bank_name, account_name,
+        latitude, longitude
     } = req.body;
 
     try {
@@ -229,7 +233,8 @@ app.post('/api/register', async (req, res) => {
                     landmark, experience || 0, availability, details, type,
                     leader_name, members_count || 1, price_1, price_2, price_3,
                     working_hours, group_members, aadhaar_no, eshram_uan,
-                    account_type, account_no, ifsc_code, bank_name, account_name
+                    account_type, account_no, ifsc_code, bank_name, account_name,
+                    latitude, longitude
                 ]);
                 success = true;
             } catch (err) {

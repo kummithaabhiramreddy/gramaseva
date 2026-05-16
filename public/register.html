@@ -48,6 +48,24 @@
       width: 100vw;
     }
 
+    /* Location Button */
+    .btn-location {
+      background: var(--sand);
+      border: 1.5px solid var(--clay);
+      color: var(--clay);
+      padding: 8px 16px;
+      border-radius: 8px;
+      font-weight: 700;
+      font-size: 0.82rem;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .btn-location:hover { background: var(--clay); color: white; }
+    .btn-location.success { background: var(--leaf); border-color: var(--leaf); color: white; }
+
     /* noise */
     body::before {
       content: '';
@@ -1107,6 +1125,18 @@
               <input type="text" placeholder="e.g. Near Shiva Temple, Main Road">
             </div>
           </div>
+          <div class="fields-grid" style="margin-top:14px">
+            <div class="field">
+              <label>Live Location (Optional but recommended for faster booking)</label>
+              <div style="display:flex; gap:12px; align-items:center; flex-wrap:wrap;">
+                <button type="button" class="btn-location" id="ind-location-btn" onclick="getLocation('ind')">📍 Get My Location</button>
+                <span id="ind-location-status" style="font-size:0.75rem; color:var(--leaf); font-weight:600;"></span>
+              </div>
+              <input type="hidden" id="ind-lat">
+              <input type="hidden" id="ind-lng">
+              <p style="font-size:0.65rem; color:var(--soil); margin-top:6px; opacity:0.8;">Using GPS helps customers see your exact distance for urgent jobs.</p>
+            </div>
+          </div>
 
           <hr class="form-divider">
 
@@ -1305,6 +1335,18 @@
               <input type="text" placeholder="e.g. Near Bus Stand, Gannavaram">
             </div>
           </div>
+          <div class="fields-grid" style="margin-top:14px">
+            <div class="field">
+              <label>Group Live Location</label>
+              <div style="display:flex; gap:12px; align-items:center; flex-wrap:wrap;">
+                <button type="button" class="btn-location" id="grp-location-btn" onclick="getLocation('grp')">📍 Get Group Location</button>
+                <span id="grp-location-status" style="font-size:0.75rem; color:var(--leaf); font-weight:600;"></span>
+              </div>
+              <input type="hidden" id="grp-lat">
+              <input type="hidden" id="grp-lng">
+              <p style="font-size:0.65rem; color:var(--soil); margin-top:6px; opacity:0.8;">The group leader should set this location.</p>
+            </div>
+          </div>
 
           <hr class="form-divider">
 
@@ -1464,6 +1506,42 @@
   </div>
 
   <script>
+    /* ── Live Location ── */
+    function getLocation(prefix) {
+      const btn = document.getElementById(prefix + '-location-btn');
+      const status = document.getElementById(prefix + '-location-status');
+      const latField = document.getElementById(prefix + '-lat');
+      const lngField = document.getElementById(prefix + '-lng');
+
+      if (!navigator.geolocation) {
+        status.textContent = "Geolocation not supported";
+        status.style.color = "red";
+        return;
+      }
+
+      btn.textContent = "📍 Locating...";
+      btn.disabled = true;
+
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          latField.value = position.coords.latitude;
+          lngField.value = position.coords.longitude;
+          btn.textContent = "✅ Location Saved";
+          btn.classList.add('success');
+          status.textContent = `📍 ${position.coords.latitude.toFixed(4)}, ${position.coords.longitude.toFixed(4)}`;
+          status.style.color = "var(--leaf)";
+          btn.disabled = false;
+        },
+        (error) => {
+          btn.textContent = "📍 Retry Location";
+          btn.disabled = false;
+          status.textContent = "Error: " + error.message;
+          status.style.color = "red";
+        },
+        { enableHighAccuracy: true, timeout: 10000 }
+      );
+    }
+
     /* ── Hamburger menu ── */
     function toggleMenu() {
       const btn = document.getElementById('hamburger');
@@ -1591,7 +1669,9 @@
         account_no: e.target.querySelector('input[name="ind-account_no"]').value,
         price_1: e.target.querySelector('input[name="ind-price_1"]').value,
         price_2: e.target.querySelector('input[name="ind-price_2"]').value,
-        price_3: e.target.querySelector('input[name="ind-price_3"]').value
+        price_3: e.target.querySelector('input[name="ind-price_3"]').value,
+        latitude: document.getElementById('ind-lat').value,
+        longitude: document.getElementById('ind-lng').value
       };
 
       try {
@@ -1642,7 +1722,9 @@
         account_no: e.target.querySelector('input[name="grp-account_no"]').value,
         price_1: e.target.querySelector('input[name="grp-price_1"]').value,
         price_2: e.target.querySelector('input[name="grp-price_2"]').value,
-        price_3: e.target.querySelector('input[name="grp-price_3"]').value
+        price_3: e.target.querySelector('input[name="grp-price_3"]').value,
+        latitude: document.getElementById('grp-lat').value,
+        longitude: document.getElementById('grp-lng').value
       };
 
       try {
