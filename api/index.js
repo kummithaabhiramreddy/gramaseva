@@ -607,8 +607,11 @@ app.get('/api/worker/bookings/:phone', async (req, res) => {
 // Verify Aadhaar
 app.post('/api/workers/verify', async (req, res) => {
     try {
-        const { worker_id } = req.body;
-        const result = await pool.query('UPDATE workers SET is_verified = true WHERE worker_id = $1 RETURNING *', [worker_id]);
+        const { worker_id, aadhaar_no, aadhaar_image } = req.body;
+        const result = await pool.query(
+            'UPDATE workers SET is_verified = true, aadhaar_no = $1, aadhaar_image = $2 WHERE worker_id = $3 RETURNING *', 
+            [aadhaar_no, aadhaar_image, worker_id]
+        );
         if (result.rows.length === 0) return res.status(404).json({ error: "Worker not found" });
         res.json(result.rows[0]);
     } catch (err) {
