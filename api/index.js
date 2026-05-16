@@ -171,8 +171,11 @@ app.get('/api/workers', async (req, res) => {
         query += ` AND (full_name ILIKE $${params.length} OR trade ILIKE $${params.length} OR village ILIKE $${params.length})`;
     }
     if (availability && availability !== 'all') {
-        params.push(availability);
-        query += ` AND availability = $${params.length}`;
+        if (availability === 'busy') {
+            query += " AND (availability ILIKE '%busy%')";
+        } else {
+            query += " AND (availability NOT ILIKE '%busy%' OR availability IS NULL OR availability = '')";
+        }
     }
 
     query += ' ORDER BY created_at DESC';

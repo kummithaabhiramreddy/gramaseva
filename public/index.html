@@ -1019,6 +1019,11 @@
         <option>Gannavaram</option>
         <option>Tiruvuru</option>
       </select>
+      <select id="statusFilter" onchange="filterWorkers()" style="min-width: 140px;">
+        <option value="all">Any Status</option>
+        <option value="available">Available Now</option>
+        <option value="busy">Currently Busy</option>
+      </select>
       <button onclick="filterWorkers()">Search</button>
     </div>
 
@@ -1140,6 +1145,7 @@
     const s = document.getElementById('searchInput').value;
     const t = document.getElementById('tradeFilter').value;
     const v = document.getElementById('villageFilter').value;
+    const st = document.getElementById('statusFilter').value;
     const grid = document.getElementById('workersGrid');
     grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:40px;color:var(--soil);">Searching...</div>';
     try {
@@ -1147,6 +1153,7 @@
       if (s) url.searchParams.append('search', s);
       if (t) url.searchParams.append('trade', t);
       if (v) url.searchParams.append('village', v);
+      if (st && st !== 'all') url.searchParams.append('availability', st);
       const response = await fetch(url);
       const workers = await response.json();
       grid.innerHTML = '';
@@ -1157,6 +1164,8 @@
       workers.forEach(w => {
         const card = document.createElement('div');
         card.className = 'worker-card fade-up visible';
+        const isBusy = (w.availability || '').toLowerCase().includes('busy');
+        
         card.innerHTML = `
           <div class="worker-header">
             <div class="worker-avatar">${tradeEmojis[w.trade] || '👤'}</div>
@@ -1172,10 +1181,18 @@
             <span>🏘️ ${w.village}</span>
             <span>⏳ ${w.experience} yrs exp</span>
           </div>
-          <div class="rating">⭐ ${w.rating.toFixed(1)} <span>(${w.reviews_count} reviews)</span></div>
-          <a href="booking.html?worker_id=${w.worker_id}" class="btn-book">
-            ${w.type === 'group' ? '📅 Book Group' : '📅 Book Now'}
-          </a>
+          <div style="display:flex; justify-content:space-between; align-items:center; margin:12px 0;">
+             <div class="rating">⭐ ${w.rating.toFixed(1)} <span style="font-size:0.7rem; opacity:0.7;">(${w.reviews_count})</span></div>
+             <span style="font-size:0.75rem; font-weight:700; color:${isBusy ? 'var(--clay)' : 'var(--leaf)'}">
+               ${isBusy ? '🔴 Busy' : '🟢 Available'}
+             </span>
+          </div>
+          <div style="display:grid; grid-template-columns: 1fr 1fr; gap:8px;">
+            <a href="booking.html?worker_id=${w.worker_id}" class="btn-book" style="margin:0; ${isBusy ? 'opacity:0.6; pointer-events:none;' : ''}">
+              ${isBusy ? 'Busy' : 'Book Now'}
+            </a>
+            <button onclick="rateWorker('${w.worker_id}', '${w.full_name}')" style="background:var(--sand); color:var(--soil); border:1.5px solid var(--wheat); border-radius:10px; font-weight:700; font-size:0.85rem; cursor:pointer;">⭐ Rate</button>
+          </div>
         `;
         grid.appendChild(card);
       });
@@ -1189,6 +1206,32 @@
     loadStats();
     filterWorkers();
   });
+
+  async function rateWorker(id, name) {
+    const stars = prompt(`How many stars would you give to ${name}? (1-5)`, "5");
+    if (!stars) return;
+    const num = parseInt(stars);
+    if (isNaN(num) || num < 1 || num > 5) {
+      alert("Please enter a number between 1 and 5.");
+      return;
+    }
+    try {
+      const response = await fetch('/api/rate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ worker_id: id, stars: num })
+      });
+      if (response.ok) {
+        alert("Thank you for your rating!");
+        filterWorkers();
+      } else {
+        alert("Failed to submit rating.");
+      }
+    } catch (err) {
+      console.error(err);
+      alert("Connection error.");
+    }
+  }
 
   /* Scroll fade-in */
   const obs = new IntersectionObserver(entries => {
