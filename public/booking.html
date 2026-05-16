@@ -458,24 +458,6 @@
             </div>
           </div>
 
-          <div id="onlinePaymentArea" style="display:none; margin-top:20px; padding:20px; background:var(--sky); border-radius:15px; border:2px dashed var(--clay);">
-            <h4 style="color:var(--clay-dk); margin-bottom:10px;">Step 3: Pay via Navi/UPI</h4>
-            <div id="paymentNoteContainer" style="background:white; padding:12px; border-radius:10px; margin-bottom:15px; border:1.5px solid var(--clay-lt); text-align:center;">
-              <p style="font-size:0.75rem; color:var(--soil); margin-bottom:5px;">Unique Payment Note Code:</p>
-              <div id="payment_note_code" style="font-size:1.8rem; font-weight:900; color:var(--clay); letter-spacing:4px;">XXXX</div>
-              <p style="font-size:0.65rem; color:red; font-weight:700; margin-top:5px;">⚠️ IMPORTANT: This code MUST be visible in your payment screenshot for AI verification.</p>
-            </div>
-            <p style="font-size:0.8rem; color:var(--soil); margin-bottom:15px;">Click the button below to pay. The code above will be automatically added to the payment note.</p>
-            
-            <button type="button" onclick="openNaviApp()" class="btn-submit" style="background:var(--leaf); margin-bottom:20px;">📲 Open Navi / Pay via UPI</button>
-            
-            <label style="font-weight:700; color:var(--clay-dk); margin-bottom:8px; display:block;">Upload Payment Screenshot</label>
-            <input type="file" id="payment_screenshot_file" accept="image/*" style="background:white; padding:10px;" onchange="handleScreenshotUpload(this)">
-            
-            <div id="aiVerificationStatus" style="margin-top:15px; font-size:0.85rem; font-weight:700; display:none;">
-              <!-- AI status will show here -->
-            </div>
-          </div>
 
           <div class="form-group" style="margin-top:20px;">
             <label style="font-weight:700; color:var(--clay-dk); display:block; margin-bottom:10px;">Step 2: Choose Payment Method</label>
@@ -494,6 +476,25 @@
                   <div style="font-size:0.75rem; color:var(--soil); margin-top:2px;">Safe & Secure AI Scan</div>
                 </div>
               </label>
+            </div>
+          </div>
+
+          <div id="onlinePaymentArea" style="display:none; margin-top:20px; padding:20px; background:var(--sky); border-radius:15px; border:2px dashed var(--clay);">
+            <h4 style="color:var(--clay-dk); margin-bottom:10px;">Step 3: Pay via Navi/UPI</h4>
+            <div id="paymentNoteContainer" style="background:white; padding:12px; border-radius:10px; margin-bottom:15px; border:1.5px solid var(--clay-lt); text-align:center;">
+              <p style="font-size:0.75rem; color:var(--soil); margin-bottom:5px;">Unique Payment Note Code:</p>
+              <div id="payment_note_code" style="font-size:1.8rem; font-weight:900; color:var(--clay); letter-spacing:4px;">XXXX</div>
+              <p style="font-size:0.65rem; color:red; font-weight:700; margin-top:5px;">⚠️ IMPORTANT: This code MUST be visible in your payment screenshot for AI verification.</p>
+            </div>
+            <p style="font-size:0.8rem; color:var(--soil); margin-bottom:15px;">Click the button below to pay. The code above will be automatically added to the payment note.</p>
+            
+            <button type="button" onclick="openNaviApp()" class="btn-submit" style="background:var(--leaf); margin-bottom:20px;">📲 Open Navi / Pay via UPI</button>
+            
+            <label style="font-weight:700; color:var(--clay-dk); margin-bottom:8px; display:block;">Upload Payment Screenshot</label>
+            <input type="file" id="payment_screenshot_file" accept="image/*" style="background:white; padding:10px;" onchange="handleScreenshotUpload(this)">
+            
+            <div id="aiVerificationStatus" style="margin-top:15px; font-size:0.85rem; font-weight:700; display:none;">
+              <!-- AI status will show here -->
             </div>
           </div>
 
