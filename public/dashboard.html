@@ -605,14 +605,14 @@
             autocomplete="tel">
           <button type="submit" class="btn-main" data-gs-key="dash_verify_btn">Verify Phone Number</button>
         </div>
-        <div id="waStep"
-          style="display:none; margin-top:15px; padding:20px; background:rgba(61,122,58,0.05); border-radius:15px; border:2px dashed var(--leaf); text-align:center;">
-          <p style="font-size:0.85rem; color:var(--soil); margin-bottom:15px; line-height:1.4;"
-            data-gs-key="dash_unlock_desc">To protect your account, please click the button below to
-            <strong>Unlock</strong> your code on this screen using WhatsApp.
-          </p>
-          <button type="button" id="btnUnlockWa" class="btn-main" style="background:var(--leaf);"
-            data-gs-key="dash_unlock_btn">📩 Unlock Code via WhatsApp</button>
+        <div id="waStep" style="display:none; text-align:center;">
+          <div style="background:var(--sky); padding:20px; border-radius:15px; margin-bottom:20px; border:1px solid var(--wheat);">
+            <div style="font-size:2rem; margin-bottom:10px;">🛡️</div>
+            <h3 style="color:var(--earth); margin-bottom:10px;">Security Check</h3>
+            <p style="font-size:0.9rem; color:var(--soil); margin-bottom:15px;">To access your dashboard, please use the following secure login code:</p>
+            <div id="displayLoginOtp" style="font-size:2.5rem; font-weight:900; color:var(--clay); letter-spacing:8px; margin:20px 0;">XXXX</div>
+          </div>
+          <button id="btnProceedToOtp" class="btn-main" style="background:var(--clay);">Enter Code to Access Dashboard</button>
         </div>
         <div id="otpStep" style="display:none; margin-top:15px;">
           <p style="font-size:0.8rem; color:var(--leaf); font-weight:700; margin-bottom:10px;"
@@ -991,8 +991,11 @@
         
         if (!otpRes.ok) throw new Error("Failed to generate OTP");
 
-        window.currentMockOtp = otpData.otp; // Still keep in window for the WA button click logic
+        window.currentMockOtp = otpData.otp;
         window.currentLoginPhone = p;
+
+        // Show the code on screen
+        document.getElementById('displayLoginOtp').textContent = otpData.otp;
 
         // Show the Unlock Step
         document.getElementById('phoneStep').style.display = 'none';
@@ -1005,19 +1008,9 @@
       }
     });
 
-    document.getElementById('btnUnlockWa').addEventListener('click', () => {
-      const otp = window.currentMockOtp;
-      const phone = window.currentLoginPhone;
-
-      // 1. Open WhatsApp with a PROFESSIONAL SECURITY MESSAGE
-      const msg = encodeURIComponent(`🌿 GramaSeva Security Check\nYour private login code is: ${otp}\n\n⚠️ Do not share this code with anyone.`);
-      window.open(`https://wa.me/91${phone}?text=${msg}`, '_blank');
-
-      // 2. Hide the unlock button and show the input box
+    document.getElementById('btnProceedToOtp').addEventListener('click', () => {
       document.getElementById('waStep').style.display = 'none';
       document.getElementById('otpStep').style.display = 'block';
-
-      // Focus on input
       setTimeout(() => document.getElementById('otpInput').focus(), 500);
     });
 

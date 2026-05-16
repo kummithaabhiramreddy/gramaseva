@@ -761,12 +761,8 @@
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || 'Failed to book');
 
-      // WhatsApp Message
-      const waMessage = `*New Booking from GramaSeva!*\n\n*ID:* ${data.booking_id}\n*Customer:* ${payload.customer_name}\n*Village:* ${payload.customer_address.split(' - ')[0]}\n*Date:* ${payload.service_date}\n*Amount:* ${payload.amount}\n*Payment:* ${payload.payment_type.toUpperCase()}\n\n_Please wait for customer to provide Completion Code after work._`;
-      const waUrl = `https://wa.me/91${currentWorker.phone}?text=${encodeURIComponent(waMessage)}`;
-
       alert('Booking Confirmed! ID: ' + data.booking_id + '\n\nIMPORTANT: Provide the Completion Code (' + data.completion_otp + ') to the worker ONLY after the job is finished.');
-      window.location.href = `dashboard.html?phone=${encodeURIComponent(payload.customer_phone)}&wa=${encodeURIComponent(waUrl)}`;
+      window.location.href = `dashboard.html?phone=${encodeURIComponent(payload.customer_phone)}`;
     }
 
     function getLiveLocation(targetId, btn) {
