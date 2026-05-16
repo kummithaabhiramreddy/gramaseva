@@ -460,7 +460,12 @@
 
           <div id="onlinePaymentArea" style="display:none; margin-top:20px; padding:20px; background:var(--sky); border-radius:15px; border:2px dashed var(--clay);">
             <h4 style="color:var(--clay-dk); margin-bottom:10px;">Step 3: Pay via Navi/UPI</h4>
-            <p style="font-size:0.8rem; color:var(--soil); margin-bottom:15px;">Click the button below to pay the fixed amount. Then upload the payment successful screenshot.</p>
+            <div id="paymentNoteContainer" style="background:white; padding:12px; border-radius:10px; margin-bottom:15px; border:1.5px solid var(--clay-lt); text-align:center;">
+              <p style="font-size:0.75rem; color:var(--soil); margin-bottom:5px;">Unique Payment Note Code:</p>
+              <div id="payment_note_code" style="font-size:1.8rem; font-weight:900; color:var(--clay); letter-spacing:4px;">XXXX</div>
+              <p style="font-size:0.65rem; color:red; font-weight:700; margin-top:5px;">⚠️ IMPORTANT: This code MUST be visible in your payment screenshot for AI verification.</p>
+            </div>
+            <p style="font-size:0.8rem; color:var(--soil); margin-bottom:15px;">Click the button below to pay. The code above will be automatically added to the payment note.</p>
             
             <button type="button" onclick="openNaviApp()" class="btn-submit" style="background:var(--leaf); margin-bottom:20px;">📲 Open Navi / Pay via UPI</button>
             
@@ -627,6 +632,14 @@
       
       document.getElementById('onlinePaymentArea').style.display = isOnline ? 'block' : 'none';
       
+      if (isOnline && (!window.paymentNoteCode || window.paymentNoteCode === 'XXXX')) {
+        const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+        let code = '';
+        for(let i=0; i<4; i++) code += chars.charAt(Math.floor(Math.random() * chars.length));
+        window.paymentNoteCode = code;
+        document.getElementById('payment_note_code').textContent = code;
+      }
+
       const btn = document.querySelector('.btn-submit');
       if (isOnline) {
         btn.textContent = 'Verify AI & Confirm Booking';
@@ -641,12 +654,10 @@
       const selectedPrice = document.querySelector('input[name="selected_price"]:checked')?.value || '₹500';
       const amount = parseFloat(selectedPrice.replace('₹', '').replace(',', '')) || 500;
       const upiId = 'gramaseva@upi'; // Replace with real UPI ID
-      const upiUrl = `upi://pay?pa=${upiId}&pn=GramaSeva&am=${amount}&cu=INR&tn=Booking_${workerId}`;
+      const code = window.paymentNoteCode || 'GS';
+      const upiUrl = `upi://pay?pa=${upiId}&pn=GramaSeva&am=${amount}&cu=INR&tn=GS_${code}_${workerId}`;
       window.location.href = upiUrl;
-      // Also open in a new tab if possible for web
-      setTimeout(() => {
-        window.open(upiUrl, '_blank');
-      }, 500);
+      setTimeout(() => { window.open(upiUrl, '_blank'); }, 500);
     }
 
     async function handleScreenshotUpload(input) {
@@ -655,7 +666,7 @@
       const status = document.getElementById('aiVerificationStatus');
       status.style.display = 'block';
       status.style.color = 'var(--clay-dk)';
-      status.innerHTML = '⏳ AI Scanner: Reading screenshot... Please wait.';
+      status.innerHTML = '⏳ AI Scanner: Reading screenshot & matching code...';
       
       const file = input.files[0];
       const reader = new FileReader();
@@ -666,27 +677,29 @@
         
         try {
           const result = await Tesseract.recognize(base64Image, 'eng');
-          const text = result.data.text.toLowerCase();
+          const text = result.data.text.toUpperCase();
           
           const selectedPrice = document.querySelector('input[name="selected_price"]:checked')?.value || '500';
-          const amountNum = selectedPrice.replace('₹', '').replace(',', '').split('.')[0]; // Integer part
-          
-          const today = new Date();
-          const day = today.getDate().toString();
-          const month = today.toLocaleString('default', { month: 'short' }).toLowerCase();
+          const amountNum = selectedPrice.replace('₹', '').replace(',', '').split('.')[0];
+          const targetCode = window.paymentNoteCode;
           
           const hasAmount = text.includes(amountNum);
-          const hasDate = text.includes(day) || text.includes(month);
+          const hasCode = text.includes(targetCode);
           
-          if (hasAmount) {
+          if (hasAmount && hasCode) {
             window.paymentVerified = true;
             status.style.color = 'var(--leaf)';
-            status.innerHTML = `✅ AI VERIFIED: Found ₹${amountNum} in screenshot. You can now book.`;
+            status.innerHTML = `✅ AI VERIFIED: Found ₹${amountNum} and Code ${targetCode}. You can now book.`;
             document.querySelector('.btn-submit').disabled = false;
+          } else if (hasAmount && !hasCode) {
+            window.paymentVerified = false;
+            status.style.color = 'orange';
+            status.innerHTML = `⚠️ AMOUNT FOUND but CODE MISSING: Found ₹${amountNum} but not code ${targetCode}. Ensure the note is visible in screenshot.`;
+            document.querySelector('.btn-submit').disabled = true;
           } else {
             window.paymentVerified = false;
             status.style.color = 'red';
-            status.innerHTML = `❌ AI ERROR: Amount ₹${amountNum} not found in screenshot. Please upload a clear image of the success screen.`;
+            status.innerHTML = `❌ AI ERROR: Details not found. Amount: ₹${amountNum}, Code: ${targetCode}. Please retry with a clear screenshot.`;
             document.querySelector('.btn-submit').disabled = true;
           }
         } catch (err) {
