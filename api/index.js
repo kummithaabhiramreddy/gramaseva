@@ -130,6 +130,7 @@ const initDb = async () => {
             ADD COLUMN IF NOT EXISTS job_completed_at TIMESTAMP,
             ADD COLUMN IF NOT EXISTS completion_otp TEXT,
             ADD COLUMN IF NOT EXISTS is_escrow_released BOOLEAN DEFAULT FALSE,
+            ADD COLUMN IF NOT EXISTS payment_id TEXT,
             ALTER COLUMN amount TYPE TEXT;
         `).catch(e => console.log("Bookings alter error ignored"));
 
@@ -449,18 +450,18 @@ app.get('/api/next-id', async (req, res) => {
 
 // Create Booking
 app.post('/api/book', async (req, res) => {
-    const { worker_id, customer_name, customer_phone, customer_address, service_date, service_time, amount, welfare_fee } = req.body;
+    const { worker_id, customer_name, customer_phone, customer_address, service_date, service_time, amount, welfare_fee, payment_id } = req.body;
     const booking_id = 'BKG-' + Date.now().toString().slice(-6) + Math.floor(Math.random() * 1000);
     const completion_otp = Math.floor(1000 + Math.random() * 9000).toString();
 
     const query = `
         INSERT INTO bookings (
-            booking_id, worker_id, customer_name, customer_phone, customer_address, service_date, service_time, amount, welfare_fee, completion_otp
-        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
+            booking_id, worker_id, customer_name, customer_phone, customer_address, service_date, service_time, amount, welfare_fee, completion_otp, payment_id, payment_status
+        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
         RETURNING *;
     `;
     const values = [
-        booking_id, worker_id, customer_name, customer_phone, customer_address, service_date, service_time || 'Any Time', amount || '₹500', welfare_fee || '₹0', completion_otp
+        booking_id, worker_id, customer_name, customer_phone, customer_address, service_date, service_time || 'Any Time', amount || '₹500', welfare_fee || '₹0', completion_otp, payment_id || null, payment_id ? 'paid' : 'pending'
     ];
 
     try {
@@ -581,6 +582,12 @@ app.post('/api/payments/verify', async (req, res) => {
 });
 
 app.get('/api/payments/key', (req, res) => {
+    if (!process.env.RAZORPAY_KEY_ID || process.env.RAZORPAY_KEY_ID.includes('YOUR_KEY_HERE')) {
+        return res.status(400).json({ 
+            error: "Razorpay Key missing", 
+            message: "Please set RAZORPAY_KEY_ID in your .env file or Vercel environment variables." 
+        });
+    }
     res.json({ key: process.env.RAZORPAY_KEY_ID });
 });
 

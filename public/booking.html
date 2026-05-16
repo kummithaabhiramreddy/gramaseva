@@ -492,7 +492,7 @@
     });
 
     const API_BASE = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
-      ? 'http://127.0.0.1:5000'
+      ? 'http://127.0.0.1:3000'
       : ''; // Relative paths for Vercel
 
     const params = new URLSearchParams(window.location.search);
@@ -636,7 +636,13 @@
       try {
         // 1. Get Razorpay Key
         const keyRes = await fetch(`${API_BASE}/api/payments/key`);
-        const { key } = await keyRes.json();
+        const keyData = await keyRes.json();
+        
+        if (!keyRes.ok) {
+          throw new Error(keyData.message || keyData.error || 'Could not fetch Razorpay Key');
+        }
+        
+        const key = keyData.key;
 
         // 2. Create Order
         const orderRes = await fetch(`${API_BASE}/api/payments/create-order`, {
