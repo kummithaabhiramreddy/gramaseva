@@ -95,8 +95,10 @@ const initDb = async () => {
 
         CREATE TABLE IF NOT EXISTS otp_verifications (
             id SERIAL PRIMARY KEY,
-            phone TEXT UNIQUE,
-            otp TEXT,
+            phone TEXT NOT NULL,
+            otp TEXT NOT NULL,
+            purpose TEXT DEFAULT 'login',
+            is_used BOOLEAN DEFAULT FALSE,
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         );
     `;
@@ -159,7 +161,39 @@ app.get('/api/migrate', async (req, res) => {
     }
 });
 
-// API Endpoints
+// 0. OTP System
+app.post('/api/otp/send', async (req, res) => {
+    const { phone, purpose } = req.body;
+    const otp = Math.floor(1000 + Math.random() * 9000).toString();
+    try {
+        await pool.query(
+            "INSERT INTO otp_verifications (phone, otp, purpose) VALUES ($1, $2, $3)",
+            [phone, otp, purpose || 'login']
+        );
+        res.json({ success: true, otp }); // In real app, don't return OTP in JSON
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+app.post('/api/otp/verify', async (req, res) => {
+    const { phone, otp, purpose } = req.body;
+    try {
+        const result = await pool.query(
+            "SELECT * FROM otp_verifications WHERE phone = $1 AND otp = $2 AND purpose = $3 AND is_used = FALSE ORDER BY created_at DESC LIMIT 1",
+            [phone, otp, purpose || 'login']
+        );
+
+        if (result.rows.length > 0) {
+            await pool.query("UPDATE otp_verifications SET is_used = TRUE WHERE id = $1", [result.rows[0].id]);
+            res.json({ success: true });
+        } else {
+            res.status(400).json({ success: false, error: "Invalid or expired OTP" });
+        }
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
 
 // 1. Get all workers with optional filtering
 app.get('/api/workers', async (req, res) => {

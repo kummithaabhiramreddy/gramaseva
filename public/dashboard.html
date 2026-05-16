@@ -969,9 +969,8 @@
 
       try {
         // First check if user exists (either as worker or has bookings)
-        const res = await fetch(`${API_BASE}/api/workers/phone/${p}`);
-        if (!res.ok) {
-          // Also check if they are a customer with bookings
+        const resCheck = await fetch(`${API_BASE}/api/workers/phone/${p}`);
+        if (!resCheck.ok) {
           const resCust = await fetch(`${API_BASE}/api/user/bookings/${p}`);
           const custData = await resCust.json();
           if (custData.length === 0) {
@@ -982,17 +981,25 @@
           }
         }
 
-        // Prepare for Secure WhatsApp Unlock
-        const mockOtp = Math.floor(1000 + Math.random() * 9000).toString();
-        window.currentMockOtp = mockOtp;
+        // 1. Generate and Store OTP in Database
+        const otpRes = await fetch(`${API_BASE}/api/otp/send`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ phone: p, purpose: 'dashboard_login' })
+        });
+        const otpData = await otpRes.json();
+        
+        if (!otpRes.ok) throw new Error("Failed to generate OTP");
+
+        window.currentMockOtp = otpData.otp; // Still keep in window for the WA button click logic
         window.currentLoginPhone = p;
 
-        // Show the Unlock Step instead of the code
+        // Show the Unlock Step
         document.getElementById('phoneStep').style.display = 'none';
         document.getElementById('waStep').style.display = 'block';
 
       } catch (err) {
-        alert("Server Error. Please try again later.");
+        alert("Server Error: " + err.message);
         btn.textContent = 'Verify Phone Number';
         btn.disabled = false;
       }
@@ -1014,14 +1021,32 @@
       setTimeout(() => document.getElementById('otpInput').focus(), 500);
     });
 
-    document.getElementById('btnVerifyOtp').addEventListener('click', () => {
+    document.getElementById('btnVerifyOtp').addEventListener('click', async () => {
       const otp = document.getElementById('otpInput').value.trim();
       const btn = document.getElementById('btnVerifyOtp');
+      const phone = window.currentLoginPhone;
 
-      if (otp === window.currentMockOtp) {
-        window.location.href = `dashboard.html?phone=${window.currentLoginPhone}`;
-      } else {
-        alert("Invalid OTP. Please enter the code shown in the notification.");
+      btn.textContent = 'Verifying...';
+      btn.disabled = true;
+
+      try {
+        const res = await fetch(`${API_BASE}/api/otp/verify`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ phone: phone, otp: otp, purpose: 'dashboard_login' })
+        });
+
+        if (res.ok) {
+          window.location.href = `dashboard.html?phone=${phone}`;
+        } else {
+          alert("Invalid OTP. Please enter the code shown in the notification.");
+          btn.textContent = 'Access My Dashboard';
+          btn.disabled = false;
+        }
+      } catch (e) {
+        alert("Verification failed. Please try again.");
+        btn.textContent = 'Access My Dashboard';
+        btn.disabled = false;
       }
     });
 
