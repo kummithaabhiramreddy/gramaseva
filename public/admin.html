@@ -428,6 +428,18 @@
         }
         .btn-primary:hover { background: var(--primary-dk); }
 
+        @media (max-width: 768px) {
+            body { overflow-x: hidden; width: 100vw; flex-direction: column; }
+            .sidebar { width: 100%; min-height: auto; flex-direction: row; flex-wrap: wrap; padding: 10px; }
+            .sidebar-header { margin-bottom: 0; padding-bottom: 10px; border-bottom: none; width: 100%; display: flex; justify-content: space-between; }
+            .nav-menu { display: flex; overflow-x: auto; gap: 10px; flex-direction: row; }
+            .nav-item { padding: 8px 12px; margin-bottom: 0; white-space: nowrap; }
+            .main-content { padding: 10px; }
+            .dashboard-grid { grid-template-columns: 1fr; }
+            .kpi-grid { grid-template-columns: repeat(2, 1fr); }
+            .controls-bar { flex-direction: column; align-items: stretch; }
+            .table-container { overflow-x: auto; }
+        }
     </style>
 </head>
 <body>
