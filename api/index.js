@@ -135,6 +135,7 @@ const initDb = async () => {
             ADD COLUMN IF NOT EXISTS payment_id TEXT,
             ADD COLUMN IF NOT EXISTS payment_type TEXT DEFAULT 'online',
             ADD COLUMN IF NOT EXISTS payout_status TEXT DEFAULT 'pending',
+            ADD COLUMN IF NOT EXISTS payment_screenshot TEXT,
             ALTER COLUMN amount TYPE TEXT;
         `).catch(e => console.log("Bookings alter error ignored"));
 
@@ -491,18 +492,18 @@ app.get('/api/next-id', async (req, res) => {
 
 // Create Booking
 app.post('/api/book', async (req, res) => {
-    const { worker_id, customer_name, customer_phone, customer_address, service_date, service_time, amount, welfare_fee, payment_id, payment_type } = req.body;
+    const { worker_id, customer_name, customer_phone, customer_address, service_date, service_time, amount, welfare_fee, payment_id, payment_type, payment_screenshot } = req.body;
     const booking_id = 'BKG-' + Date.now().toString().slice(-6) + Math.floor(Math.random() * 1000);
     const completion_otp = Math.floor(1000 + Math.random() * 9000).toString();
 
     const query = `
         INSERT INTO bookings (
-            booking_id, worker_id, customer_name, customer_phone, customer_address, service_date, service_time, amount, welfare_fee, completion_otp, payment_id, payment_status, payment_type
-        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)
+            booking_id, worker_id, customer_name, customer_phone, customer_address, service_date, service_time, amount, welfare_fee, completion_otp, payment_id, payment_status, payment_type, payment_screenshot
+        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14)
         RETURNING *;
     `;
     const values = [
-        booking_id, worker_id, customer_name, customer_phone, customer_address, service_date, service_time || 'Any Time', amount || '₹500', welfare_fee || '₹0', completion_otp, payment_id || null, (payment_id || payment_type === 'cash') ? 'paid' : 'pending', payment_type || 'online'
+        booking_id, worker_id, customer_name, customer_phone, customer_address, service_date, service_time || 'Any Time', amount || '₹500', welfare_fee || '₹0', completion_otp, payment_id || null, (payment_id || payment_type === 'cash' || payment_screenshot) ? 'paid' : 'pending', payment_type || 'online', payment_screenshot || null
     ];
 
     try {

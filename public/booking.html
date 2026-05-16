@@ -10,6 +10,7 @@
     rel="stylesheet">
   <script src="lang.js"></script>
   <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+  <script src="https://unpkg.com/tesseract.js@v2.1.0/dist/tesseract.min.js"></script>
   <style>
     :root {
       --clay: #c8502a;
@@ -457,6 +458,20 @@
             </div>
           </div>
 
+          <div id="onlinePaymentArea" style="display:none; margin-top:20px; padding:20px; background:var(--sky); border-radius:15px; border:2px dashed var(--clay);">
+            <h4 style="color:var(--clay-dk); margin-bottom:10px;">Step 3: Pay via Navi/UPI</h4>
+            <p style="font-size:0.8rem; color:var(--soil); margin-bottom:15px;">Click the button below to pay the fixed amount. Then upload the payment successful screenshot.</p>
+            
+            <button type="button" onclick="openNaviApp()" class="btn-submit" style="background:var(--leaf); margin-bottom:20px;">📲 Open Navi / Pay via UPI</button>
+            
+            <label style="font-weight:700; color:var(--clay-dk); margin-bottom:8px; display:block;">Upload Payment Screenshot</label>
+            <input type="file" id="payment_screenshot_file" accept="image/*" style="background:white; padding:10px;" onchange="handleScreenshotUpload(this)">
+            
+            <div id="aiVerificationStatus" style="margin-top:15px; font-size:0.85rem; font-weight:700; display:none;">
+              <!-- AI status will show here -->
+            </div>
+          </div>
+
           <div class="form-group" style="margin-top:20px;">
             <label style="font-weight:700; color:var(--clay-dk);">Payment Method</label>
             <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px; margin-top:10px;">
@@ -610,35 +625,93 @@
       document.getElementById('label-cash').style.borderColor = !isOnline ? 'var(--clay)' : 'var(--wheat)';
       document.getElementById('label-cash').style.background = !isOnline ? 'rgba(200,80,42,0.05)' : 'white';
       
+      document.getElementById('onlinePaymentArea').style.display = isOnline ? 'block' : 'none';
+      
       const btn = document.querySelector('.btn-submit');
       if (isOnline) {
-        btn.textContent = 'Pay & Confirm Booking';
+        btn.textContent = 'Verify AI & Confirm Booking';
+        btn.disabled = !window.paymentVerified;
       } else {
         btn.textContent = 'Book with Cash Payment';
+        btn.disabled = false;
       }
+    }
+
+    function openNaviApp() {
+      const selectedPrice = document.querySelector('input[name="selected_price"]:checked')?.value || '₹500';
+      const amount = parseFloat(selectedPrice.replace('₹', '').replace(',', '')) || 500;
+      const upiId = 'gramaseva@upi'; // Replace with real UPI ID
+      const upiUrl = `upi://pay?pa=${upiId}&pn=GramaSeva&am=${amount}&cu=INR&tn=Booking_${workerId}`;
+      window.location.href = upiUrl;
+      // Also open in a new tab if possible for web
+      setTimeout(() => {
+        window.open(upiUrl, '_blank');
+      }, 500);
+    }
+
+    async function handleScreenshotUpload(input) {
+      if (!input.files || !input.files[0]) return;
+      
+      const status = document.getElementById('aiVerificationStatus');
+      status.style.display = 'block';
+      status.style.color = 'var(--clay-dk)';
+      status.innerHTML = '⏳ AI Scanner: Reading screenshot... Please wait.';
+      
+      const file = input.files[0];
+      const reader = new FileReader();
+      
+      reader.onload = async (e) => {
+        const base64Image = e.target.result;
+        window.tempScreenshot = base64Image;
+        
+        try {
+          const result = await Tesseract.recognize(base64Image, 'eng');
+          const text = result.data.text.toLowerCase();
+          
+          const selectedPrice = document.querySelector('input[name="selected_price"]:checked')?.value || '500';
+          const amountNum = selectedPrice.replace('₹', '').replace(',', '').split('.')[0]; // Integer part
+          
+          const today = new Date();
+          const day = today.getDate().toString();
+          const month = today.toLocaleString('default', { month: 'short' }).toLowerCase();
+          
+          const hasAmount = text.includes(amountNum);
+          const hasDate = text.includes(day) || text.includes(month);
+          
+          if (hasAmount) {
+            window.paymentVerified = true;
+            status.style.color = 'var(--leaf)';
+            status.innerHTML = `✅ AI VERIFIED: Found ₹${amountNum} in screenshot. You can now book.`;
+            document.querySelector('.btn-submit').disabled = false;
+          } else {
+            window.paymentVerified = false;
+            status.style.color = 'red';
+            status.innerHTML = `❌ AI ERROR: Amount ₹${amountNum} not found in screenshot. Please upload a clear image of the success screen.`;
+            document.querySelector('.btn-submit').disabled = true;
+          }
+        } catch (err) {
+          status.innerHTML = '❌ AI Scan failed. Please try a clearer screenshot.';
+        }
+      };
+      reader.readAsDataURL(file);
     }
 
     document.getElementById('bookingForm').addEventListener('submit', async (e) => {
       e.preventDefault();
       const btn = e.target.querySelector('button');
+      const paymentType = document.querySelector('input[name="payment_type"]:checked').value;
+      
+      if (paymentType === 'online' && !window.paymentVerified) {
+        alert("Please upload and verify your payment screenshot first!");
+        return;
+      }
+
       const originalBtnText = btn.textContent;
       btn.textContent = 'Processing...';
       btn.disabled = true;
 
       const custPhone = document.getElementById('customer_phone').value;
-      const paymentType = document.querySelector('input[name="payment_type"]:checked').value;
-
-      // Prevent booking own service
-      if (currentWorker && custPhone === currentWorker.phone) {
-        alert("You cannot book your own service!");
-        btn.textContent = originalBtnText;
-        btn.disabled = false;
-        return;
-      }
-
       const selectedPrice = document.querySelector('input[name="selected_price"]:checked')?.value || '₹500';
-      const amountNum = parseFloat(selectedPrice.replace('₹', '').replace(',', '')) || 500;
-
       const village = document.getElementById('customer_village').value;
       const address = document.getElementById('customer_address').value;
       const fullAddress = `${village} - ${address}`;
@@ -652,56 +725,12 @@
         service_time: document.getElementById('service_time').value,
         amount: selectedPrice,
         welfare_fee: window.currentWelfareFee || '₹0',
-        payment_type: paymentType
+        payment_type: paymentType,
+        payment_screenshot: window.tempScreenshot || null
       };
 
       try {
-        if (paymentType === 'online') {
-          // 1. Get Razorpay Key
-          const keyRes = await fetch(`${API_BASE}/api/payments/key`);
-          const keyData = await keyRes.json();
-          if (!keyRes.ok) throw new Error(keyData.message || keyData.error || 'Could not fetch Razorpay Key');
-          const key = keyData.key;
-
-          // 2. Create Order
-          const orderRes = await fetch(`${API_BASE}/api/payments/create-order`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ amount: amountNum })
-          });
-          const order = await orderRes.json();
-
-          // 3. Open Razorpay Modal
-          const options = {
-            key: key,
-            amount: order.amount,
-            currency: "INR",
-            name: "GramaSeva Marketplace",
-            description: `Booking for ${currentWorker.full_name}`,
-            order_id: order.id,
-            handler: async function (response) {
-              bookingPayload.payment_id = response.razorpay_payment_id;
-              await completeBooking(bookingPayload);
-            },
-            prefill: {
-              name: bookingPayload.customer_name,
-              contact: custPhone
-            },
-            theme: { color: "#c8502a" },
-            modal: {
-              ondismiss: function () {
-                btn.textContent = originalBtnText;
-                btn.disabled = false;
-              }
-            }
-          };
-
-          const rzp = new Razorpay(options);
-          rzp.open();
-        } else {
-          // Cash Booking
-          await completeBooking(bookingPayload);
-        }
+        await completeBooking(bookingPayload);
       } catch (err) {
         alert('Error: ' + err.message);
         btn.textContent = originalBtnText;
