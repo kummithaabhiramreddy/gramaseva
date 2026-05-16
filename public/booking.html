@@ -766,6 +766,33 @@
       window.location.href = `dashboard.html?phone=${encodeURIComponent(payload.customer_phone)}`;
     }
 
+    function updateWelfareFee() {
+      const selectedPrice = document.querySelector('input[name="selected_price"]:checked')?.value || '₹500';
+      const amount = parseFloat(selectedPrice.replace('₹', '').replace(',', '')) || 500;
+      const fee = 5; 
+      window.currentWelfareFee = `₹${fee}`;
+      
+      const display = document.getElementById('welfare_fee_display');
+      if (display) {
+        display.innerHTML = `
+          <div class="payment-summary" style="margin-top:15px;">
+            <div class="payment-row">
+              <span>Service Amount:</span>
+              <span>₹${amount}</span>
+            </div>
+            <div class="payment-row" style="color:var(--leaf); font-weight:700;">
+              <span>Welfare Contribution:</span>
+              <span>₹${fee}</span>
+            </div>
+            <div class="payment-total">
+              <span>Total to Pay:</span>
+              <span>₹${amount + fee}</span>
+            </div>
+          </div>
+        `;
+      }
+    }
+
     function getLiveLocation(targetId, btn) {
       if (navigator.geolocation) {
         const originalText = btn.textContent;
