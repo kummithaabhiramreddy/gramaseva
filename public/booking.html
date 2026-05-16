@@ -641,8 +641,6 @@
         document.getElementById('payment_note_code').textContent = code;
       }
 
-      }
-
       const btn = document.getElementById('btn-confirm-booking');
       if (isOnline) {
         btn.textContent = 'Verify AI & Confirm Booking';
@@ -693,17 +691,17 @@
             window.paymentVerified = true;
             status.style.color = 'var(--leaf)';
             status.innerHTML = `✅ AI VERIFIED: Found ₹${amountNum} and Code ${targetCode}. You can now book.`;
-            document.querySelector('.btn-submit').disabled = false;
+            document.getElementById('btn-confirm-booking').disabled = false;
           } else if (hasAmount && !hasCode) {
             window.paymentVerified = false;
             status.style.color = 'orange';
             status.innerHTML = `⚠️ AMOUNT FOUND but CODE MISSING: Found ₹${amountNum} but not code ${targetCode}. Ensure the note is visible in screenshot.`;
-            document.querySelector('.btn-submit').disabled = true;
+            document.getElementById('btn-confirm-booking').disabled = true;
           } else {
             window.paymentVerified = false;
             status.style.color = 'red';
             status.innerHTML = `❌ AI ERROR: Details not found. Amount: ₹${amountNum}, Code: ${targetCode}. Please retry with a clear screenshot.`;
-            document.querySelector('.btn-submit').disabled = true;
+            document.getElementById('btn-confirm-booking').disabled = true;
           }
         } catch (err) {
           status.innerHTML = '❌ AI Scan failed. Please try a clearer screenshot.';
