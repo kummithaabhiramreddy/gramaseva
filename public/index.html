@@ -1054,7 +1054,7 @@
       <div class="footer-col">
         <h6>For Customers</h6>
         <a href="#workers">Find Workers</a>
-        <a href="book.html">Book a Worker</a>
+        <a href="#workers">Book a Worker</a>
         <a href="#">My Bookings</a>
         <a href="#">Reviews</a>
       </div>
@@ -1164,7 +1164,7 @@
             <span>⏳ ${w.experience} yrs exp</span>
           </div>
           <div class="rating">⭐ ${w.rating.toFixed(1)} <span>(${w.reviews_count} reviews)</span></div>
-          <a href="book.html?worker=${encodeURIComponent(w.full_name)}&trade=${w.trade}&village=${w.village}&type=${w.type}" class="btn-book">
+          <a href="booking.html?worker_id=${w.worker_id}" class="btn-book">
             ${w.type === 'group' ? '📅 Book Group' : '📅 Book Now'}
           </a>
         `;
