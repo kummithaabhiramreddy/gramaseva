@@ -455,6 +455,54 @@ app.post('/api/book', async (req, res) => {
     }
 });
 
+// Get worker by phone
+app.get('/api/workers/phone/:phone', async (req, res) => {
+    try {
+        const { phone } = req.params;
+        const result = await pool.query('SELECT * FROM workers WHERE phone = $1', [phone]);
+        if (result.rows.length === 0) {
+            return res.status(404).json({ error: "Worker not found" });
+        }
+        res.json(result.rows[0]);
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+// Get customer bookings
+app.get('/api/user/bookings/:phone', async (req, res) => {
+    try {
+        const { phone } = req.params;
+        const result = await pool.query('SELECT b.*, w.full_name as worker_name, w.trade as worker_trade, w.phone as worker_phone FROM bookings b LEFT JOIN workers w ON b.worker_id = w.worker_id WHERE b.customer_phone = $1 ORDER BY b.created_at DESC', [phone]);
+        res.json(result.rows);
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+// Get worker bookings (jobs)
+app.get('/api/worker/bookings/:phone', async (req, res) => {
+    try {
+        const { phone } = req.params;
+        const result = await pool.query('SELECT b.* FROM bookings b JOIN workers w ON b.worker_id = w.worker_id WHERE w.phone = $1 ORDER BY b.created_at DESC', [phone]);
+        res.json(result.rows);
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+// Verify Aadhaar
+app.post('/api/workers/verify', async (req, res) => {
+    try {
+        const { worker_id } = req.body;
+        const result = await pool.query('UPDATE workers SET is_verified = true WHERE worker_id = $1 RETURNING *', [worker_id]);
+        if (result.rows.length === 0) return res.status(404).json({ error: "Worker not found" });
+        res.json(result.rows[0]);
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
 // Get User Profile
 app.get('/api/user-profile', async (req, res) => {
     const { phone } = req.query;
