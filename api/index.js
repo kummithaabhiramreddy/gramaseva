@@ -148,6 +148,9 @@ const initDb = async () => {
             ALTER TABLE otp_verifications 
             ADD COLUMN IF NOT EXISTS purpose TEXT DEFAULT 'login',
             ADD COLUMN IF NOT EXISTS is_used BOOLEAN DEFAULT FALSE;
+            
+            -- Remove accidental unique constraint on phone if it exists
+            ALTER TABLE otp_verifications DROP CONSTRAINT IF EXISTS otp_verifications_phone_key;
         `).catch(e => console.log("OTP alter error ignored"));
 
     } catch (err) {
