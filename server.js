@@ -1,1 +1,3 @@
-module.exports = require('./api/index.js');
+const express = require('express');
+const app = require('./api/index.js');
+module.exports = app;
