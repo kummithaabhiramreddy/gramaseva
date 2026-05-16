@@ -10,6 +10,8 @@ const app = express();
 // Middleware
 app.use(cors());
 app.use(express.json());
+const path = require('path');
+app.use(express.static(path.join(__dirname, '../public')));
 
 // Postgres Pool Setup
 const pool = new Pool({
@@ -22,6 +24,11 @@ const pool = new Pool({
 // Error listener to prevent process crash
 pool.on('error', (err) => {
     console.error('Unexpected error on idle client', err);
+});
+
+// Explicitly serve index.html on root just in case Vercel routes it here
+app.get('/', (req, res) => {
+    res.sendFile(path.join(__dirname, '../public/index.html'));
 });
 
 
