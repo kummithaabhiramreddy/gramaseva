@@ -478,20 +478,20 @@
           </div>
 
           <div class="form-group" style="margin-top:20px;">
-            <label style="font-weight:700; color:var(--clay-dk);">Payment Method</label>
-            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px; margin-top:10px;">
-              <label style="display:flex; align-items:center; gap:10px; padding:15px; border:2px solid var(--wheat); border-radius:12px; cursor:pointer; background:white;" id="label-online">
+            <label style="font-weight:700; color:var(--clay-dk); display:block; margin-bottom:10px;">Step 2: Choose Payment Method</label>
+            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:12px;">
+              <label style="display:flex; align-items:center; gap:12px; padding:15px; border:2px solid var(--wheat); border-radius:15px; cursor:pointer; background:white; transition:all 0.3s;" id="label-online">
                 <input type="radio" name="payment_type" value="online" checked onchange="togglePaymentUI()">
                 <div>
-                  <div style="font-weight:700; font-size:0.9rem;">Online (Navi/UPI)</div>
-                  <div style="font-size:0.7rem; color:var(--soil);">Pay now via any app</div>
+                  <div style="font-weight:800; font-size:0.95rem; color:var(--earth);">Online (Navi/UPI)</div>
+                  <div style="font-size:0.75rem; color:var(--soil); margin-top:2px;">Safe & Secure AI Scan</div>
                 </div>
               </label>
-              <label style="display:flex; align-items:center; gap:10px; padding:15px; border:2px solid var(--wheat); border-radius:12px; cursor:pointer; background:white;" id="label-cash">
+              <label style="display:flex; align-items:center; gap:12px; padding:15px; border:2px solid var(--wheat); border-radius:15px; cursor:pointer; background:white; transition:all 0.3s;" id="label-cash">
                 <input type="radio" name="payment_type" value="cash" onchange="togglePaymentUI()">
                 <div>
-                  <div style="font-weight:700; font-size:0.9rem;">Cash on Worker</div>
-                  <div style="font-size:0.7rem; color:var(--soil);">Pay after work</div>
+                  <div style="font-weight:800; font-size:0.95rem; color:var(--earth);">Cash on Worker</div>
+                  <div style="font-size:0.75rem; color:var(--soil); margin-top:2px;">Pay directly after work</div>
                 </div>
               </label>
             </div>
@@ -505,7 +505,7 @@
             <div id="welfare_fee_display"></div>
           </div>
 
-          <button type="submit" class="btn-submit" data-gs-key="book_confirm">Confirm Booking</button>
+          <button type="submit" id="btn-confirm-booking" class="btn-submit" style="margin-top:20px;" data-gs-key="book_confirm">Confirm Booking</button>
         </form>
       </div>
     </div>
@@ -615,6 +615,7 @@
           }
           pricingContainer.style.display = 'block';
           updateWelfareFee();
+          togglePaymentUI(); // Initialize UI state
         })
         .catch(err => {
           document.getElementById('loading').style.display = 'none';
@@ -640,7 +641,9 @@
         document.getElementById('payment_note_code').textContent = code;
       }
 
-      const btn = document.querySelector('.btn-submit');
+      }
+
+      const btn = document.getElementById('btn-confirm-booking');
       if (isOnline) {
         btn.textContent = 'Verify AI & Confirm Booking';
         btn.disabled = !window.paymentVerified;
