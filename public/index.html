@@ -1107,7 +1107,7 @@
   /* ── Load Stats ── */
   async function loadStats() {
     try {
-      const response = await fetch('http://127.0.0.1:5000/api/stats');
+      const response = await fetch('/api/stats');
       const data = await response.json();
       const w = data.registeredWorkers + '+';
       const v = data.villagesCovered + '+';
@@ -1134,7 +1134,7 @@
     const grid = document.getElementById('workersGrid');
     grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:40px;color:var(--soil);">Searching...</div>';
     try {
-      const url = new URL('http://127.0.0.1:5000/api/workers');
+      const url = new URL('/api/workers');
       if (s) url.searchParams.append('search', s);
       if (t) url.searchParams.append('trade', t);
       if (v) url.searchParams.append('village', v);
