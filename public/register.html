@@ -63,8 +63,17 @@
       align-items: center;
       gap: 6px;
     }
-    .btn-location:hover { background: var(--clay); color: white; }
-    .btn-location.success { background: var(--leaf); border-color: var(--leaf); color: white; }
+
+    .btn-location:hover {
+      background: var(--clay);
+      color: white;
+    }
+
+    .btn-location.success {
+      background: var(--leaf);
+      border-color: var(--leaf);
+      color: white;
+    }
 
     /* noise */
     body::before {
@@ -161,7 +170,11 @@
       border-radius: 8px;
       transition: background 0.2s;
     }
-    .hamburger:hover { background: rgba(255,255,255,0.1); }
+
+    .hamburger:hover {
+      background: rgba(255, 255, 255, 0.1);
+    }
+
     .hamburger span {
       display: block;
       width: 22px;
@@ -170,27 +183,41 @@
       border-radius: 2px;
       transition: all 0.3s;
     }
-    .hamburger.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
-    .hamburger.open span:nth-child(2) { opacity: 0; }
-    .hamburger.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+
+    .hamburger.open span:nth-child(1) {
+      transform: translateY(7px) rotate(45deg);
+    }
+
+    .hamburger.open span:nth-child(2) {
+      opacity: 0;
+    }
+
+    .hamburger.open span:nth-child(3) {
+      transform: translateY(-7px) rotate(-45deg);
+    }
 
     /* Mobile nav drawer */
     .mobile-nav {
       display: none;
       flex-direction: column;
       background: var(--soil);
-      border-top: 1px solid rgba(200,80,42,0.3);
+      border-top: 1px solid rgba(200, 80, 42, 0.3);
       padding: 14px 1.25rem;
       gap: 6px;
       position: absolute;
       top: 64px;
-      left: 0; right: 0;
+      left: 0;
+      right: 0;
       z-index: 199;
-      box-shadow: 0 12px 32px rgba(0,0,0,0.4);
+      box-shadow: 0 12px 32px rgba(0, 0, 0, 0.4);
     }
-    .mobile-nav.open { display: flex; }
+
+    .mobile-nav.open {
+      display: flex;
+    }
+
     .mobile-nav a {
-      color: rgba(245,237,224,0.85);
+      color: rgba(245, 237, 224, 0.85);
       text-decoration: none;
       padding: 11px 14px;
       border-radius: 10px;
@@ -201,19 +228,35 @@
       align-items: center;
       gap: 8px;
     }
-    .mobile-nav a:hover { background: rgba(200,80,42,0.2); color: white; }
+
+    .mobile-nav a:hover {
+      background: rgba(200, 80, 42, 0.2);
+      color: white;
+    }
+
     .mobile-nav .mob-cta {
       background: var(--clay);
       color: white !important;
       justify-content: center;
       margin-top: 4px;
     }
-    .mobile-nav .mob-cta:hover { background: var(--clay-lt); }
+
+    .mobile-nav .mob-cta:hover {
+      background: var(--clay-lt);
+    }
 
     @media (max-width: 640px) {
-      .hamburger { display: flex; }
-      .back-link { display: none; }
-      .header-inner { padding: 0 1rem; }
+      .hamburger {
+        display: flex;
+      }
+
+      .back-link {
+        display: none;
+      }
+
+      .header-inner {
+        padding: 0 1rem;
+      }
     }
 
     /* ── ABOUT BANNER ── */
@@ -1129,12 +1172,14 @@
             <div class="field">
               <label>Live Location (Optional but recommended for faster booking)</label>
               <div style="display:flex; gap:12px; align-items:center; flex-wrap:wrap;">
-                <button type="button" class="btn-location" id="ind-location-btn" onclick="getLocation('ind')">📍 Get My Location</button>
+                <button type="button" class="btn-location" id="ind-location-btn" onclick="getLocation('ind')">📍 Get My
+                  Location</button>
                 <span id="ind-location-status" style="font-size:0.75rem; color:var(--leaf); font-weight:600;"></span>
               </div>
               <input type="hidden" id="ind-lat">
               <input type="hidden" id="ind-lng">
-              <p style="font-size:0.65rem; color:var(--soil); margin-top:6px; opacity:0.8;">Using GPS helps customers see your exact distance for urgent jobs.</p>
+              <p style="font-size:0.65rem; color:var(--soil); margin-top:6px; opacity:0.8;">Using GPS helps customers
+                see your exact distance for urgent jobs.</p>
             </div>
           </div>
 
@@ -1339,12 +1384,14 @@
             <div class="field">
               <label>Group Live Location</label>
               <div style="display:flex; gap:12px; align-items:center; flex-wrap:wrap;">
-                <button type="button" class="btn-location" id="grp-location-btn" onclick="getLocation('grp')">📍 Get Group Location</button>
+                <button type="button" class="btn-location" id="grp-location-btn" onclick="getLocation('grp')">📍 Get
+                  Group Location</button>
                 <span id="grp-location-status" style="font-size:0.75rem; color:var(--leaf); font-weight:600;"></span>
               </div>
               <input type="hidden" id="grp-lat">
               <input type="hidden" id="grp-lng">
-              <p style="font-size:0.65rem; color:var(--soil); margin-top:6px; opacity:0.8;">The group leader should set this location.</p>
+              <p style="font-size:0.65rem; color:var(--soil); margin-top:6px; opacity:0.8;">The group leader should set
+                this location.</p>
             </div>
           </div>
 
@@ -1573,13 +1620,13 @@
       document.querySelectorAll('.type-btn').forEach(b => b.classList.remove('active'));
       document.querySelectorAll('.form-panel').forEach(p => p.classList.remove('active'));
       const btns = document.querySelectorAll('.type-btn');
-      if (type === 'individual') { 
-        btns[0].classList.add('active'); 
-        document.getElementById('panel-individual').classList.add('active'); 
+      if (type === 'individual') {
+        btns[0].classList.add('active');
+        document.getElementById('panel-individual').classList.add('active');
       }
-      else { 
-        btns[1].classList.add('active'); 
-        document.getElementById('panel-group').classList.add('active'); 
+      else {
+        btns[1].classList.add('active');
+        document.getElementById('panel-group').classList.add('active');
       }
     }
 
@@ -1699,7 +1746,7 @@
       const members = document.querySelectorAll('#membersList .member-row input');
       const filled = [...members].filter(i => i.value.trim());
       if (filled.length < 2) { alert('Please add at least 2 member names.'); return; }
-      
+
       const id = document.getElementById('grp-id-field').value;
       const formData = {
         worker_id: id,

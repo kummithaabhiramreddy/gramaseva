@@ -441,9 +441,20 @@
               data-placeholder-en="Full address and nearest landmark in your village" data-placeholder-te="మీ గ్రామంలోని పూర్తి చిరునామా మరియు సమీప మైలురాయి"></textarea>
           </div>
 
-          <div class="form-group">
-            <label data-gs-key="book_service_date">Date for Service</label>
-            <input type="date" id="service_date" required>
+          <div class="fields-grid" style="display:grid; grid-template-columns: 1fr 1fr; gap:15px;">
+            <div class="form-group">
+              <label data-gs-key="book_service_date">Date for Service</label>
+              <input type="date" id="service_date" required style="width:100%; padding:12px; border-radius:10px; border:1.5px solid var(--wheat);">
+            </div>
+            <div class="form-group">
+              <label>Time of Day</label>
+              <select id="service_time" required style="width:100%; padding:12px; border-radius:10px; border:1.5px solid var(--wheat); font-family:inherit;">
+                <option value="Any Time">Any Time</option>
+                <option value="Morning (8 AM - 12 PM)">Morning</option>
+                <option value="Afternoon (12 PM - 4 PM)">Afternoon</option>
+                <option value="Evening (4 PM - 8 PM)">Evening</option>
+              </select>
+            </div>
           </div>
 
           <div id="pricingOptionsContainer" style="display:none; margin-top:30px;">
@@ -651,6 +662,7 @@
               customer_phone: document.getElementById('customer_phone').value,
               customer_address: fullAddress,
               service_date: document.getElementById('service_date').value,
+              service_time: document.getElementById('service_time').value,
               amount: selectedPrice,
               welfare_fee: window.currentWelfareFee || '₹0',
               payment_id: response.razorpay_payment_id
@@ -665,7 +677,7 @@
             const data = await res.json();
             if (!res.ok) throw new Error(data.error || 'Failed to book');
 
-            const waMessage = `*Payment Successful! New Booking from GramaSeva!*\n\n*Customer:* ${payload.customer_name}\n*Phone:* ${payload.customer_phone}\n*Village:* ${village}\n*Date:* ${payload.service_date}\n*Price:* ${payload.amount}`;
+            const waMessage = `*Payment Successful! New Booking from GramaSeva!*\n\n*Customer:* ${payload.customer_name}\n*Phone:* ${payload.customer_phone}\n*Village:* ${village}\n*Date:* ${payload.service_date}\n*Time:* ${payload.service_time}\n*Price:* ${payload.amount}`;
             const waUrl = `https://wa.me/91${currentWorker.phone}?text=${encodeURIComponent(waMessage)}`;
 
             alert('Payment Successful! Booking ID: ' + data.booking_id + '\n\nIMPORTANT: Your Completion OTP is: ' + data.completion_otp + '. Please keep this safe.');

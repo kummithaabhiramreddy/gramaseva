@@ -126,6 +126,7 @@ const initDb = async () => {
         await pool.query(`
             ALTER TABLE bookings 
             ADD COLUMN IF NOT EXISTS welfare_fee TEXT,
+            ADD COLUMN IF NOT EXISTS service_time TEXT,
             ADD COLUMN IF NOT EXISTS job_completed_at TIMESTAMP,
             ADD COLUMN IF NOT EXISTS completion_otp TEXT,
             ADD COLUMN IF NOT EXISTS is_escrow_released BOOLEAN DEFAULT FALSE,
@@ -448,18 +449,18 @@ app.get('/api/next-id', async (req, res) => {
 
 // Create Booking
 app.post('/api/book', async (req, res) => {
-    const { worker_id, customer_name, customer_phone, customer_address, service_date, amount, welfare_fee } = req.body;
+    const { worker_id, customer_name, customer_phone, customer_address, service_date, service_time, amount, welfare_fee } = req.body;
     const booking_id = 'BKG-' + Date.now().toString().slice(-6) + Math.floor(Math.random() * 1000);
     const completion_otp = Math.floor(1000 + Math.random() * 9000).toString();
 
     const query = `
         INSERT INTO bookings (
-            booking_id, worker_id, customer_name, customer_phone, customer_address, service_date, amount, welfare_fee, completion_otp
-        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+            booking_id, worker_id, customer_name, customer_phone, customer_address, service_date, service_time, amount, welfare_fee, completion_otp
+        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
         RETURNING *;
     `;
     const values = [
-        booking_id, worker_id, customer_name, customer_phone, customer_address, service_date, amount || '₹500', welfare_fee || '₹0', completion_otp
+        booking_id, worker_id, customer_name, customer_phone, customer_address, service_date, service_time || 'Any Time', amount || '₹500', welfare_fee || '₹0', completion_otp
     ];
 
     try {
