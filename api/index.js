@@ -606,8 +606,12 @@ app.get('/api/admin/trigger-auto-payout', async (req, res) => {
 // Get worker by phone
 app.get('/api/workers/phone/:phone', async (req, res) => {
     try {
-        const { phone } = req.params;
-        const result = await pool.query('SELECT * FROM workers WHERE phone = $1', [phone]);
+        let { phone } = req.params;
+        const cleanPhone = phone.trim().replace(/^(\+91|0)/, '');
+        const result = await pool.query(
+            "SELECT * FROM workers WHERE phone = $1 OR phone = $2 OR phone = $3", 
+            [cleanPhone, '0' + cleanPhone, '+91' + cleanPhone]
+        );
         if (result.rows.length === 0) {
             return res.status(404).json({ error: "Worker not found" });
         }
@@ -621,7 +625,15 @@ app.get('/api/workers/phone/:phone', async (req, res) => {
 app.get('/api/user/bookings/:phone', async (req, res) => {
     try {
         const { phone } = req.params;
-        const result = await pool.query('SELECT b.*, w.full_name as worker_name, w.trade as worker_trade, w.phone as worker_phone FROM bookings b LEFT JOIN workers w ON b.worker_id = w.worker_id WHERE b.customer_phone = $1 ORDER BY b.created_at DESC', [phone]);
+        const cleanPhone = phone.trim().replace(/^(\+91|0)/, '');
+        const result = await pool.query(`
+            SELECT b.*, w.full_name as worker_name, w.trade as worker_trade, w.phone as worker_phone 
+            FROM bookings b 
+            LEFT JOIN workers w ON b.worker_id = w.worker_id 
+            WHERE b.customer_phone = $1 OR b.customer_phone = $2 OR b.customer_phone = $3
+            ORDER BY b.created_at DESC`, 
+            [cleanPhone, '0' + cleanPhone, '+91' + cleanPhone]
+        );
         res.json(result.rows);
     } catch (err) {
         res.status(500).json({ error: err.message });

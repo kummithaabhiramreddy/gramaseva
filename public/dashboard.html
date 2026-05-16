@@ -618,9 +618,10 @@
             </div>
             <button type="button" id="btnVerifyOtp" class="btn-main" style="margin-top:15px; background:var(--earth);">Access My Dashboard</button>
           </div>
-          <button type="button" onclick="location.reload()"
-            style="background:none; border:none; color:var(--soil); font-size:0.75rem; margin-top:10px; cursor:pointer; text-decoration:underline;"
-            data-gs-key="dash_change_num">Change Number</button>
+          <div style="display:flex; justify-content:center; gap:20px; margin-top:10px;">
+            <button type="button" onclick="location.reload()" style="background:none; border:none; color:var(--soil); font-size:0.75rem; cursor:pointer; text-decoration:underline;">Change Number</button>
+            <button type="button" onclick="resendOtp()" style="background:none; border:none; color:var(--clay); font-size:0.75rem; cursor:pointer; text-decoration:underline; font-weight:700;">New Code</button>
+          </div>
         </div>
       </form>
       <p style="font-size:0.8rem; color:#888; margin-top:20px;"><span data-gs-key="dash_no_account">Don't have an
@@ -964,13 +965,14 @@
       btn.disabled = true;
 
       try {
-        // First check if user exists (either as worker or has bookings)
+        // First check if user exists
         const resCheck = await fetch(`${API_BASE}/api/workers/phone/${p}`);
         if (!resCheck.ok) {
           const resCust = await fetch(`${API_BASE}/api/user/bookings/${p}`);
+          if (!resCust.ok) throw new Error("Could not check your records. Please try again.");
           const custData = await resCust.json();
           if (custData.length === 0) {
-            alert("Error: Phone number not registered. Please register first.");
+            alert("Error: Phone number not found in GramaSeva. Please check the number or register first.");
             btn.textContent = 'Verify Phone Number';
             btn.disabled = false;
             return;
@@ -983,10 +985,13 @@
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ phone: p, purpose: 'dashboard_login' })
         });
-        const otpData = await otpRes.json();
         
-        if (!otpRes.ok) throw new Error("Failed to generate OTP");
-
+        if (!otpRes.ok) {
+          const errorData = await otpRes.json();
+          throw new Error(errorData.error || "Failed to generate security code. Please try again.");
+        }
+        
+        const otpData = await otpRes.json();
         window.currentMockOtp = otpData.otp;
         window.currentLoginPhone = p;
 
@@ -998,11 +1003,37 @@
         document.getElementById('waStep').style.display = 'block';
 
       } catch (err) {
-        alert("Server Error: " + err.message);
+        alert("Verification Error: " + err.message);
         btn.textContent = 'Verify Phone Number';
         btn.disabled = false;
       }
     });
+
+    async function resendOtp() {
+      const p = window.currentLoginPhone;
+      if(!p) return;
+      const otpDisplay = document.getElementById('displayLoginOtp');
+      otpDisplay.textContent = '....';
+      
+      try {
+        const otpRes = await fetch(`${API_BASE}/api/otp/send`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ phone: p, purpose: 'dashboard_login' })
+        });
+        const otpData = await otpRes.json();
+        if (otpRes.ok) {
+          window.currentMockOtp = otpData.otp;
+          otpDisplay.textContent = otpData.otp;
+        } else {
+          alert("Failed to refresh code: " + (otpData.error || 'Server error'));
+          otpDisplay.textContent = 'XXXX';
+        }
+      } catch (err) {
+        alert("Error refreshing code: " + err.message);
+        otpDisplay.textContent = 'XXXX';
+      }
+    }
 
     document.getElementById('otpInput').addEventListener('input', (e) => {
       if (e.target.value.trim().length === 4) {
