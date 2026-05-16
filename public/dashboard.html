@@ -591,10 +591,14 @@
 
   <!-- Mobile nav drawer -->
   <div class="mobile-nav" id="mobileNav">
-    <a href="index.html" onclick="closeMenu()">🏠 Home</a>
-    <a href="index.html#trades" onclick="closeMenu()">🔧 Services</a>
-    <a href="index.html#workers" onclick="closeMenu()">👷 Find Workers</a>
-    <a href="dashboard.html" onclick="closeMenu()">📊 My Dashboard</a>
+    <a href="javascript:void(0)" onclick="if(document.getElementById('nav-profile')) showSection('profileSection', document.getElementById('nav-profile')); closeMenu();">👤 My Profile</a>
+    <a href="javascript:void(0)" onclick="if(document.getElementById('nav-worker')) showSection('workerSection', document.getElementById('nav-worker')); closeMenu();">📥 Incoming Jobs</a>
+    <a href="javascript:void(0)" onclick="if(document.getElementById('nav-customer')) showSection('customerSection', document.getElementById('nav-customer')); closeMenu();">📅 My Requests</a>
+    <a href="javascript:void(0)" onclick="if(document.getElementById('nav-finance')) showSection('financeSection', document.getElementById('nav-finance')); closeMenu();">💰 Platform Funds</a>
+    <a href="javascript:void(0)" onclick="if(document.getElementById('nav-account')) showSection('accountSection', document.getElementById('nav-account')); closeMenu();">🏦 Bank & Payments</a>
+    <hr style="border: 0; border-top: 1px solid rgba(255,255,255,0.1); margin: 5px 0;">
+    <a href="register.html" onclick="closeMenu()">✍️ Register New</a>
+    <a href="index.html#workers" onclick="closeMenu()">🔍 Find Worker</a>
   </div>
 
   <div class="container" id="loginContainer">
