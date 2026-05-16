@@ -144,6 +144,12 @@ const initDb = async () => {
             ADD COLUMN IF NOT EXISTS wallet_balance NUMERIC DEFAULT 0;
         `).catch(e => console.log("Workers wallet alter error ignored"));
 
+        await pool.query(`
+            ALTER TABLE otp_verifications 
+            ADD COLUMN IF NOT EXISTS purpose TEXT DEFAULT 'login',
+            ADD COLUMN IF NOT EXISTS is_used BOOLEAN DEFAULT FALSE;
+        `).catch(e => console.log("OTP alter error ignored"));
+
     } catch (err) {
         console.error("❌ Error initializing database:", err.message);
     }
