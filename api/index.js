@@ -135,10 +135,18 @@ const initDb = async () => {
     }
 };
 
-// We don't call initDb() on every serverless function invocation 
-// unless we really need to. Vercel functions should be fast.
-// But for this project, let's keep it or move it to a migration script.
-// I'll skip it for now to keep the cold start fast, but ensure the tables exist.
+// Run DB migration on cold start — safe because CREATE TABLE IF NOT EXISTS is idempotent
+initDb();
+
+// Also expose a manual migration endpoint
+app.get('/api/migrate', async (req, res) => {
+    try {
+        await initDb();
+        res.json({ success: true, message: 'Database tables created/verified successfully!' });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
 
 // API Endpoints
 
